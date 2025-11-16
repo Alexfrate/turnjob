@@ -1,0 +1,151 @@
+{
+  "nav": {
+    "features": "Funzionalità",
+    "pricing": "Prezzi",
+    "about": "Chi Siamo",
+    "login": "Accedi",
+    "getStarted": "Inizia Gratis"
+  },
+  "hero": {
+    "badge": "Gestione Turni Intelligente",
+    "title": "Gestisci i turni del tuo team",
+    "titleHighlight": "in modo semplice",
+    "subtitle": "La piattaforma completa per la gestione di ferie, permessi e turni. Risparmia tempo, riduci gli errori e migliora la soddisfazione del team.",
+    "cta": "Inizia Gratis",
+    "ctaSecondary": "Guarda Demo",
+    "trustedBy": "Usato da oltre 500 aziende",
+    "stats": {
+      "users": "Utenti Attivi",
+      "time": "Ore Risparmiate",
+      "satisfaction": "Soddisfazione"
+    }
+  },
+  "features": {
+    "title": "Tutto ciò di cui hai bisogno",
+    "subtitle": "Strumenti potenti per semplificare la gestione dei turni",
+    "calendar": {
+      "title": "Calendario Intelligente",
+      "description": "Visualizza e gestisci tutti i turni in un'unica vista. Identifica conflitti e slot disponibili in tempo reale."
+    },
+    "requests": {
+      "title": "Richieste Automatiche",
+      "description": "I dipendenti possono richiedere ferie e permessi direttamente dall'app. Approva o rifiuta con un click."
+    },
+    "notifications": {
+      "title": "Notifiche Real-time",
+      "description": "Rimani sempre aggiornato con notifiche istantanee via email e push per ogni cambio di stato."
+    },
+    "reports": {
+      "title": "Report & Analytics",
+      "description": "Monitora ore lavorate, ferie residue e analizza i trend del tuo team con report dettagliati."
+    },
+    "mobile": {
+      "title": "Mobile First",
+      "description": "Accedi da qualsiasi dispositivo. L'app è ottimizzata per smartphone e tablet."
+    },
+    "security": {
+      "title": "Sicurezza Avanzata",
+      "description": "I tuoi dati sono protetti con crittografia end-to-end e backup automatici giornalieri."
+    }
+  },
+  "howItWorks": {
+    "title": "Come Funziona",
+    "subtitle": "Inizia in 3 semplici passi",
+    "step1": {
+      "title": "Crea il tuo Account",
+      "description": "Registrati gratuitamente e configura la tua azienda in pochi minuti."
+    },
+    "step2": {
+      "title": "Invita il Team",
+      "description": "Aggiungi i tuoi dipendenti e assegna ruoli e permessi."
+    },
+    "step3": {
+      "title": "Inizia a Gestire",
+      "description": "Gestisci richieste, turni e ferie in un'unica piattaforma centralizzata."
+    }
+  },
+  "pricing": {
+    "title": "Prezzi Semplici e Trasparenti",
+    "subtitle": "Scegli il piano perfetto per la tua azienda",
+    "monthly": "Mensile",
+    "yearly": "Annuale",
+    "save": "Risparmia 20%",
+    "starter": {
+      "name": "Starter",
+      "price": "Gratis",
+      "description": "Perfetto per piccoli team",
+      "features": [
+        "Fino a 5 utenti",
+        "Calendario base",
+        "Richieste ferie",
+        "Support via email",
+        "1 GB storage"
+      ],
+      "cta": "Inizia Gratis"
+    },
+    "professional": {
+      "name": "Professional",
+      "price": "€29",
+      "priceYearly": "€24",
+      "description": "Per team in crescita",
+      "features": [
+        "Fino a 50 utenti",
+        "Calendario avanzato",
+        "Report & Analytics",
+        "Support prioritario",
+        "10 GB storage",
+        "Integrazioni API"
+      ],
+      "cta": "Inizia Trial",
+      "popular": "Più Popolare"
+    },
+    "enterprise": {
+      "name": "Enterprise",
+      "price": "Custom",
+      "description": "Per grandi organizzazioni",
+      "features": [
+        "Utenti illimitati",
+        "Tutte le funzionalità Pro",
+        "Support dedicato 24/7",
+        "Storage illimitato",
+        "SLA garantito",
+        "Personalizzazioni custom"
+      ],
+      "cta": "Contattaci"
+    },
+    "perMonth": "/mese",
+    "perUser": "per utente"
+  },
+  "cta": {
+    "title": "Pronto per semplificare la gestione dei turni?",
+    "subtitle": "Unisciti a centinaia di aziende che hanno già scelto Turnjob",
+    "button": "Inizia Gratis Oggi"
+  },
+  "footer": {
+    "description": "La piattaforma completa per la gestione di turni, ferie e permessi.",
+    "product": "Prodotto",
+    "company": "Azienda",
+    "legal": "Legale",
+    "features": "Funzionalità",
+    "pricing": "Prezzi",
+    "about": "Chi Siamo",
+    "blog": "Blog",
+    "careers": "Lavora con Noi",
+    "contact": "Contatti",
+    "privacy": "Privacy Policy",
+    "terms": "Termini di Servizio",
+    "rights": "Tutti i diritti riservati."
+  },
+  "common": {
+    "loading": "Caricamento...",
+    "error": "Errore",
+    "success": "Successo",
+    "cancel": "Annulla",
+    "save": "Salva",
+    "delete": "Elimina",
+    "edit": "Modifica",
+    "back": "Indietro",
+    "next": "Avanti",
+    "close": "Chiudi"
+  }
+}
