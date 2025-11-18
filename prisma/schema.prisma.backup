@@ -1,0 +1,195 @@
+// Turnjob - Database Schema
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+enum UserRole {
+  ADMIN
+  EMPLOYEE
+}
+
+enum RequestType {
+  VACATION   // Ferie
+  PERMISSION // Permessi
+  DAY_OFF    // Riposo
+  ROL        // Riduzione Orario Lavoro
+}
+
+enum RequestStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  CANCELLED
+}
+
+model Company {
+  id                   String   @id @default(cuid())
+  name                 String
+  email                String   @unique
+  logo                 String?
+  settings             Json     @default("{}")
+
+  // Configurazioni globali
+  minAdvanceNoticeDays Int      @default(3)
+  allowWeekendRequests Boolean  @default(true)
+
+  users                User[]
+  positions            Position[]
+  timeOffPolicies      TimeOffPolicy[]
+  blackoutPeriods      BlackoutPeriod[]
+
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+}
+
+model User {
+  id                    String    @id @default(cuid())
+  email                 String    @unique
+  name                  String
+  avatar                String?
+  role                  UserRole  @default(EMPLOYEE)
+
+  companyId             String
+  company               Company   @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  positionId            String?
+  position              Position? @relation(fields: [positionId], references: [id])
+
+  hireDate              DateTime?
+  isActive              Boolean   @default(true)
+
+  // Quote annuali personalizzate (override policies)
+  customVacationDays    Int?
+  customPermissionHours Int?
+
+  requests              Request[]
+
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+
+  @@index([companyId])
+  @@index([positionId])
+}
+
+model Position {
+  id                      String   @id @default(cuid())
+  name                    String   // es. "Cameriere", "Cuoco", "Barista"
+  description             String?
+  color                   String   @default("#3b82f6") // per UI
+
+  companyId               String
+  company                 Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  // Limite di assenze contemporanee per questa mansione
+  maxSimultaneousAbsences Int      @default(1)
+
+  users                   User[]
+
+  createdAt               DateTime @default(now())
+  updatedAt               DateTime @updatedAt
+
+  @@unique([companyId, name])
+  @@index([companyId])
+}
+
+model TimeOffPolicy {
+  id               String   @id @default(cuid())
+
+  companyId        String
+  company          Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  year             Int
+
+  // Quote standard per l'anno
+  vacationDays     Int      @default(22)  // Ferie
+  permissionHours  Int      @default(72)  // Permessi (in ore)
+  rolHours         Int      @default(0)   // ROL
+
+  // Riposi settimanali (configurabili per periodo)
+  weeklyDaysOffMin Int      @default(2)
+  weeklyDaysOffMax Int      @default(3)
+
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  @@unique([companyId, year])
+  @@index([companyId])
+}
+
+model Request {
+  id             String        @id @default(cuid())
+
+  userId         String
+  user           User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  type           RequestType
+  status         RequestStatus @default(PENDING)
+
+  startDate      DateTime
+  endDate        DateTime
+
+  // Per permessi in ore
+  hours          Float?
+
+  notes          String?
+  adminNotes     String?       // Note dell'admin
+
+  // Metadata
+  approvedBy     String?
+  approvedAt     DateTime?
+  rejectedReason String?
+
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+
+  @@index([userId])
+  @@index([startDate, endDate])
+  @@index([status])
+}
+
+model BlackoutPeriod {
+  id               String   @id @default(cuid())
+
+  companyId        String
+  company          Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  name             String   // es. "Festività Natalizie", "Alta Stagione Estiva"
+  description      String?
+
+  startDate        DateTime
+  endDate          DateTime
+
+  blockAllRequests Boolean  @default(false)
+  // Se false, può limitare solo certi tipi o ridurre gli slot
+
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  @@index([companyId])
+  @@index([startDate, endDate])
+}
+
+model AuditLog {
+  id         String   @id @default(cuid())
+
+  userId     String?
+  action     String   // es. "REQUEST_CREATED", "REQUEST_APPROVED"
+  entityType String   // es. "Request", "User"
+  entityId   String
+
+  changes    Json?    // Dati prima/dopo
+  ipAddress  String?
+  userAgent  String?
+
+  createdAt  DateTime @default(now())
+
+  @@index([userId])
+  @@index([entityType, entityId])
+  @@index([createdAt])
+}

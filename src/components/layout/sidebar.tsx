@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import {
   Calendar,
   LayoutDashboard,
@@ -9,14 +9,27 @@ import {
   Users,
   Settings,
   LogOut,
-  Building2
+  Building2,
+  Brain
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useLanguage } from "@/contexts/language-context";
+import { createClient } from "@/lib/supabase/client";
 
 export function Sidebar() {
   const pathname = usePathname();
+  const router = useRouter();
   const { t } = useLanguage();
+
+  const handleLogout = async () => {
+    try {
+      const supabase = createClient();
+      await supabase.auth.signOut();
+      router.push('/login');
+    } catch (error) {
+      console.error('Logout error:', error);
+    }
+  };
 
   const navigation = [
     { name: t('sidebar.dashboard'), href: "/dashboard", icon: LayoutDashboard },
@@ -24,6 +37,7 @@ export function Sidebar() {
     { name: t('sidebar.requests'), href: "/dashboard/requests", icon: FileText },
     { name: t('sidebar.team'), href: "/dashboard/team", icon: Users },
     { name: t('sidebar.positions'), href: "/dashboard/positions", icon: Building2 },
+    { name: "Configurazione AI", href: "/dashboard/llm-config", icon: Brain },
     { name: t('sidebar.settings'), href: "/dashboard/settings", icon: Settings },
   ];
 
@@ -68,7 +82,10 @@ export function Sidebar() {
 
         {/* User Section */}
         <div className="flex-shrink-0 border-t border-neutral-200 dark:border-neutral-800 p-4">
-          <button className="flex items-center gap-3 px-4 py-3 w-full rounded-lg text-sm font-medium text-neutral-700 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors">
+          <button
+            onClick={handleLogout}
+            className="flex items-center gap-3 px-4 py-3 w-full rounded-lg text-sm font-medium text-neutral-700 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors"
+          >
             <LogOut className="h-5 w-5" />
             {t('sidebar.logout')}
           </button>
