@@ -4,18 +4,15 @@ import Link from "next/link";
 import { Calendar, Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/theme-toggle";
-import { LanguageSelector } from "@/components/language-selector";
-import { useLanguage } from "@/contexts/language-context";
 import { useState } from "react";
 
 export function Navbar() {
-  const { t } = useLanguage();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const navLinks = [
-    { name: t('nav.features'), href: "/#features" },
-    { name: t('nav.pricing'), href: "/#pricing" },
-    { name: t('nav.about'), href: "/about" }
+    { name: "Funzionalità", href: "/#features" },
+    { name: "Prezzi", href: "/#pricing" },
+    { name: "Chi Siamo", href: "/about" }
   ];
 
   return (
@@ -47,13 +44,12 @@ export function Navbar() {
 
           {/* Desktop CTA */}
           <div className="hidden md:flex items-center gap-2">
-            <LanguageSelector />
             <ThemeToggle />
             <Button asChild variant="ghost" className="font-semibold">
-              <Link href="/login">{t('nav.login')}</Link>
+              <Link href="/login">Accedi</Link>
             </Button>
             <Button asChild className="font-semibold">
-              <Link href="/register">{t('nav.register')}</Link>
+              <Link href="/register">Registrati</Link>
             </Button>
           </div>
 
@@ -86,14 +82,13 @@ export function Navbar() {
               ))}
               <div className="flex flex-col gap-2 pt-4 border-t border-neutral-200 dark:border-neutral-800">
                 <div className="flex items-center justify-center gap-2 pb-2">
-                  <LanguageSelector />
                   <ThemeToggle />
                 </div>
                 <Button asChild variant="ghost" className="w-full font-semibold">
-                  <Link href="/login">{t('nav.login')}</Link>
+                  <Link href="/login">Accedi</Link>
                 </Button>
                 <Button asChild className="w-full font-semibold">
-                  <Link href="/register">{t('nav.register')}</Link>
+                  <Link href="/register">Registrati</Link>
                 </Button>
               </div>
             </div>

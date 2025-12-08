@@ -14,15 +14,27 @@ export default function LoginPage() {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [rememberMe, setRememberMe] = useState(false);
+  const [emailError, setEmailError] = useState<string | null>(null);
 
-  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
-    e.preventDefault();
+  const [passwordError, setPasswordError] = useState<string | null>(null);  function validateForm(email: string, password: string) {
+    const emailRegex = /^[^s@]+@[^s@]+.[^s@]+$/;
+    setEmailError(!emailRegex.test(email) ? "Email non valida" : null);
+    setPasswordError(password.length < 8 ? "Password deve essere almeno 8 caratteri" : null);
+    return !emailError && !passwordError;
+  }
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {    e.preventDefault();
     setIsLoading(true);
     setError(null);
 
     const formData = new FormData(e.currentTarget);
     const email = formData.get("email") as string;
     const password = formData.get("password") as string;
+
+    if (!validateForm(email, password)) {
+      setIsLoading(false);
+      return;
+    }
 
     try {
       const supabase = createClient();
@@ -43,9 +55,7 @@ export default function LoginPage() {
       setIsLoading(false);
     }
   }
-
-  return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary-50 via-white to-success-50 p-4">
+  return (    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary-50 via-white to-success-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900 p-4">
       <div className="w-full max-w-md">
         {/* Logo */}
         <Link href="/" className="flex items-center justify-center gap-2 mb-8">
@@ -58,7 +68,7 @@ export default function LoginPage() {
         </Link>
 
         {/* Login Card */}
-        <Card className="border-2">
+        <Card className="border-2 dark:border-slate-700">
           <CardHeader className="space-y-1">
             <CardTitle className="text-2xl font-bold text-center">
               Bentornato
@@ -85,14 +95,13 @@ export default function LoginPage() {
                   required
                   disabled={isLoading}
                 />
-              </div>
+                {emailError && <p className="text-red-500 text-sm">{emailError}</p>}              </div>
 
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
                   <Label htmlFor="password">Password</Label>
                   <Link
-                    href="/forgot-password"
-                    className="text-sm text-primary-600 hover:text-primary-700"
+                  href="/forgot-password"                    className="text-sm text-primary-600 hover:text-primary-700"
                   >
                     Dimenticata?
                   </Link>
@@ -105,9 +114,19 @@ export default function LoginPage() {
                   required
                   disabled={isLoading}
                 />
-              </div>
+                {passwordError && <p className="text-red-500 text-sm">{passwordError}</p>}              </div>
 
-              <Button type="submit" className="w-full" size="lg" disabled={isLoading}>
+
+              <div className="flex items-center space-x-2">
+                <input
+                  name="remember"                  id="remember"
+                  type="checkbox"
+                  checked={rememberMe}
+                  onChange={(e) => setRememberMe(e.target.checked)}
+                  className="rounded border-neutral-300 dark:border-slate-600 dark:bg-slate-700 dark:checked:bg-primary-600"
+                />
+                <Label htmlFor="remember" className="text-sm">Ricordami</Label>
+              </div>              <Button type="submit" className="w-full" size="lg" disabled={isLoading}>
                 {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                 Accedi
               </Button>

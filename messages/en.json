@@ -1,151 +1,214 @@
 {
-  "nav": {
-    "features": "Features",
-    "pricing": "Pricing",
-    "about": "About",
-    "login": "Login",
-    "getStarted": "Get Started"
-  },
-  "hero": {
-    "badge": "Smart Shift Management",
-    "title": "Manage your team shifts",
-    "titleHighlight": "the easy way",
-    "subtitle": "Complete platform for managing vacations, permissions and shifts. Save time, reduce errors and improve team satisfaction.",
-    "cta": "Start Free",
-    "ctaSecondary": "Watch Demo",
-    "trustedBy": "Trusted by over 500 companies",
-    "stats": {
-      "users": "Active Users",
-      "time": "Hours Saved",
-      "satisfaction": "Satisfaction"
+  "Index": {
+    "title": "Turnjob - Intelligent Shift Management",
+    "nav": {
+      "features": "Features",
+      "pricing": "Pricing",
+      "about": "About",
+      "login": "Login",
+      "register": "Register"
+    },
+    "hero": {
+      "badge": "New: AI Shift Management 2.0",
+      "title": "Schedule shifts",
+      "subtitle": "in seconds",
+      "description": "The complete solution for shift management, time off, and leaves. Optimize your time and reduce errors with our intelligent platform.",
+      "cta": {
+        "primary": "Start for Free",
+        "secondary": "Login"
+      },
+      "social": {
+        "companies": "500+ Companies",
+        "shifts": "1M+ Shifts",
+        "satisfaction": "99% Satisfaction"
+      }
+    },
+    "features": {
+      "title": "Everything you need",
+      "subtitle": "Powerful tools to manage your team efficiently"
+    },
+    "feature": {
+      "calendar": {
+        "title": "Smart Calendar",
+        "description": "Schedule shifts with an intuitive drag-and-drop interface."
+      },
+      "validation": {
+        "title": "Auto Validation",
+        "description": "Prevent conflicts and ensure compliance with company rules."
+      },
+      "positions": {
+        "title": "Role Management",
+        "description": "Assign shifts based on staff skills and roles."
+      },
+      "dashboard": {
+        "title": "Analytics Dashboard",
+        "description": "Monitor costs, hours worked, and performance in real-time."
+      },
+      "quotas": {
+        "title": "Time Off Management",
+        "description": "Track time off, leaves, and sick days with auto-approval."
+      },
+      "notifications": {
+        "title": "Smart Notifications",
+        "description": "Notify the team of new shifts or changes via email/SMS."
+      },
+      "security": {
+        "title": "Enterprise Security",
+        "description": "Data protected with end-to-end encryption and auto backups."
+      },
+      "performance": {
+        "title": "Performance",
+        "description": "Optimize shift coverage to maximize productivity."
+      },
+      "blackout": {
+        "title": "Blackout Periods",
+        "description": "Block time off requests during peak seasons."
+      }
+    },
+    "pricing": {
+      "title": "Simple and Transparent Plans",
+      "subtitle": "Choose the plan that best fits your company needs",
+      "trial": "14-day free trial. No credit card required.",
+      "starter": {
+        "name": "Starter",
+        "description": "Perfect for small teams",
+        "price": "29",
+        "period": "month",
+        "cta": "Start for Free",
+        "feature1": "Up to 10 employees",
+        "feature2": "Basic shift scheduling",
+        "feature3": "Time off management",
+        "feature4": "PDF/Excel export",
+        "feature5": "Email support",
+        "feature6": "Employee mobile app"
+      },
+      "professional": {
+        "name": "Professional",
+        "description": "For growing companies",
+        "price": "79",
+        "period": "month",
+        "cta": "Start Trial",
+        "popular": "Most Popular",
+        "feature1": "Up to 50 employees",
+        "feature2": "Everything in Starter",
+        "feature3": "Advanced AI scheduling",
+        "feature4": "Advanced reporting",
+        "feature5": "Multi-location management",
+        "feature6": "Payroll integration",
+        "feature7": "Priority support",
+        "feature8": "API access"
+      },
+      "enterprise": {
+        "name": "Enterprise",
+        "description": "For large organizations",
+        "price": "Custom",
+        "priceLabel": "Contact Us",
+        "cta": "Contact Sales",
+        "feature1": "Unlimited employees",
+        "feature2": "Everything in Professional",
+        "feature3": "SSO & SAML",
+        "feature4": "Audit logs",
+        "feature5": "Guaranteed SLA",
+        "feature6": "Dedicated Account Manager",
+        "feature7": "Custom training",
+        "feature8": "Custom integrations",
+        "feature9": "On-premise option"
+      }
+    },
+    "cta": {
+      "title": "Manage shifts intelligently",
+      "description": "Simplify staff management with our intuitive platform.",
+      "primary": "Get Started",
+      "secondary": "Request Demo"
+    },
+    "footer": {
+      "description": "The complete platform for shift and staff management.",
+      "titles": {
+        "product": "Product",
+        "company": "Company",
+        "resources": "Resources",
+        "legal": "Legal"
+      },
+      "copyright": "All rights reserved.",
+      "made": "Made with ❤️ in Italy",
+      "product": {
+        "features": "Features",
+        "pricing": "Pricing",
+        "demo": "Demo",
+        "roadmap": "Roadmap"
+      },
+      "company": {
+        "about": "About",
+        "blog": "Blog",
+        "careers": "Careers",
+        "contact": "Contact"
+      },
+      "resources": {
+        "docs": "Documentation",
+        "guides": "Guides",
+        "api": "API",
+        "support": "Support"
+      }
     }
   },
-  "features": {
-    "title": "Everything you need",
-    "subtitle": "Powerful tools to simplify shift management",
-    "calendar": {
-      "title": "Smart Calendar",
-      "description": "View and manage all shifts in one place. Identify conflicts and available slots in real-time."
+  "Dashboard": {
+    "welcome": "Welcome back",
+    "nav": {
+      "home": "Home",
+      "schedule": "Schedule",
+      "requests": "Requests",
+      "team": "Team",
+      "settings": "Settings",
+      "admin": "Admin"
+    },
+    "sidebar": {
+      "dashboard": "Dashboard",
+      "calendar": "Calendar",
+      "requests": "Requests",
+      "team": "Team",
+      "positions": "Roles",
+      "settings": "Settings",
+      "logout": "Logout"
+    },
+    "title": "Dashboard",
+    "subtitle": "Overview of activities and shifts.",
+    "stats": {
+      "pending": "Pending Requests",
+      "pendingChange": "+2 from yesterday",
+      "approved": "Approved (Month)",
+      "approvedChange": "+5 from last month",
+      "active": "Active Employees",
+      "activeChange": "98% attendance rate",
+      "shifts": "Total Shifts (Month)",
+      "shiftsChange": "+12 from last month"
+    },
+    "actions": {
+      "title": "Quick Actions",
+      "subtitle": "Fast access to common features",
+      "viewCalendar": "View Calendar",
+      "viewCalendarDesc": "Manage shifts and schedules",
+      "manageTeam": "Manage Team",
+      "manageTeamDesc": "Add or edit employees",
+      "approveRequests": "Approve Requests",
+      "approveRequestsDesc": "Manage time off and leaves",
+      "onboarding": "Complete Setup",
+      "getStarted": "Go"
     },
     "requests": {
-      "title": "Automated Requests",
-      "description": "Employees can request time off directly from the app. Approve or reject with one click."
+      "title": "Recent Requests",
+      "subtitle": "Latest time off and leave requests",
+      "pending": "Pending"
     },
-    "notifications": {
-      "title": "Real-time Notifications",
-      "description": "Stay updated with instant email and push notifications for every status change."
+    "calendar": {
+      "title": "Calendar Overview",
+      "subtitle": "Upcoming shifts and deadlines",
+      "coming": "Coming soon..."
     },
-    "reports": {
-      "title": "Reports & Analytics",
-      "description": "Monitor worked hours, remaining vacation days and analyze your team trends with detailed reports."
-    },
-    "mobile": {
-      "title": "Mobile First",
-      "description": "Access from any device. The app is optimized for smartphones and tablets."
-    },
-    "security": {
-      "title": "Advanced Security",
-      "description": "Your data is protected with end-to-end encryption and daily automatic backups."
-    }
+    "search": "Search..."
   },
-  "howItWorks": {
-    "title": "How It Works",
-    "subtitle": "Get started in 3 simple steps",
-    "step1": {
-      "title": "Create your Account",
-      "description": "Sign up for free and set up your company in minutes."
-    },
-    "step2": {
-      "title": "Invite your Team",
-      "description": "Add your employees and assign roles and permissions."
-    },
-    "step3": {
-      "title": "Start Managing",
-      "description": "Manage requests, shifts and vacations in one centralized platform."
-    }
-  },
-  "pricing": {
-    "title": "Simple and Transparent Pricing",
-    "subtitle": "Choose the perfect plan for your business",
-    "monthly": "Monthly",
-    "yearly": "Yearly",
-    "save": "Save 20%",
-    "starter": {
-      "name": "Starter",
-      "price": "Free",
-      "description": "Perfect for small teams",
-      "features": [
-        "Up to 5 users",
-        "Basic calendar",
-        "Vacation requests",
-        "Email support",
-        "1 GB storage"
-      ],
-      "cta": "Start Free"
-    },
-    "professional": {
-      "name": "Professional",
-      "price": "€29",
-      "priceYearly": "€24",
-      "description": "For growing teams",
-      "features": [
-        "Up to 50 users",
-        "Advanced calendar",
-        "Reports & Analytics",
-        "Priority support",
-        "10 GB storage",
-        "API integrations"
-      ],
-      "cta": "Start Trial",
-      "popular": "Most Popular"
-    },
-    "enterprise": {
-      "name": "Enterprise",
-      "price": "Custom",
-      "description": "For large organizations",
-      "features": [
-        "Unlimited users",
-        "All Pro features",
-        "24/7 dedicated support",
-        "Unlimited storage",
-        "Guaranteed SLA",
-        "Custom customizations"
-      ],
-      "cta": "Contact Us"
-    },
-    "perMonth": "/month",
-    "perUser": "per user"
-  },
-  "cta": {
-    "title": "Ready to simplify shift management?",
-    "subtitle": "Join hundreds of companies that have already chosen Turnjob",
-    "button": "Start Free Today"
-  },
-  "footer": {
-    "description": "The complete platform for managing shifts, vacations and permissions.",
-    "product": "Product",
-    "company": "Company",
-    "legal": "Legal",
-    "features": "Features",
-    "pricing": "Pricing",
-    "about": "About",
-    "blog": "Blog",
-    "careers": "Careers",
-    "contact": "Contact",
-    "privacy": "Privacy Policy",
-    "terms": "Terms of Service",
-    "rights": "All rights reserved."
-  },
-  "common": {
-    "loading": "Loading...",
-    "error": "Error",
-    "success": "Success",
-    "cancel": "Cancel",
-    "save": "Save",
-    "delete": "Delete",
-    "edit": "Edit",
-    "back": "Back",
-    "next": "Next",
-    "close": "Close"
+  "Onboarding": {
+    "title": "Company Setup",
+    "description": "Configure your company with AI assistance",
+    "start": "Start Setup"
   }
 }

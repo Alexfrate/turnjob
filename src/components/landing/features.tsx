@@ -12,79 +12,75 @@ import {
   Lock
 } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { useLanguage } from "@/contexts/language-context";
 
-const getFeatures = (t: (key: string) => string) => [
+const features = [
   {
     icon: Calendar,
-    titleKey: "feature.calendar.title",
-    descriptionKey: "feature.calendar.description",
+    title: "Calendario Intuitivo",
+    description: "Visualizza e gestisci tutti i turni in un calendario chiaro e facile da usare. Drag & drop per modifiche rapide.",
     color: "text-primary-500"
   },
   {
     icon: CheckCircle,
-    titleKey: "feature.validation.title",
-    descriptionKey: "feature.validation.description",
+    title: "Validazione Automatica",
+    description: "Il sistema verifica automaticamente la compatibilità dei turni, evitando sovrapposizioni e conflitti.",
     color: "text-success-500"
   },
   {
     icon: Users,
-    titleKey: "feature.positions.title",
-    descriptionKey: "feature.positions.description",
+    title: "Gestione Nuclei",
+    description: "Organizza i collaboratori in nuclei per mansione, reparto o qualsiasi criterio. Assegna turni per gruppo.",
     color: "text-warning-500"
   },
   {
     icon: BarChart,
-    titleKey: "feature.dashboard.title",
-    descriptionKey: "feature.dashboard.description",
+    title: "Dashboard Analitica",
+    description: "Monitora le statistiche del tuo team: ore lavorate, presenze, copertura turni e molto altro.",
     color: "text-primary-600"
   },
   {
     icon: Clock,
-    titleKey: "feature.quotas.title",
-    descriptionKey: "feature.quotas.description",
+    title: "Ore Flessibili",
+    description: "Configura ore settimanali fisse, mensili o flessibili per ogni collaboratore secondo le tue esigenze.",
     color: "text-success-600"
   },
   {
     icon: Bell,
-    titleKey: "feature.notifications.title",
-    descriptionKey: "feature.notifications.description",
+    title: "Notifiche Smart",
+    description: "Avvisa automaticamente i collaboratori di nuovi turni, modifiche o richieste da approvare.",
     color: "text-warning-600"
   },
   {
     icon: Shield,
-    titleKey: "feature.security.title",
-    descriptionKey: "feature.security.description",
+    title: "Sicurezza Avanzata",
+    description: "I tuoi dati sono protetti con crittografia di livello enterprise e backup automatici.",
     color: "text-danger-500"
   },
   {
     icon: Zap,
-    titleKey: "feature.performance.title",
-    descriptionKey: "feature.performance.description",
+    title: "Prestazioni Elevate",
+    description: "Interfaccia veloce e reattiva anche con migliaia di turni. Ottimizzato per ogni dispositivo.",
     color: "text-primary-500"
   },
   {
     icon: Lock,
-    titleKey: "feature.blackout.title",
-    descriptionKey: "feature.blackout.description",
+    title: "Periodi di Blocco",
+    description: "Definisci periodi in cui non è possibile richiedere ferie o permessi, come festività o alta stagione.",
     color: "text-neutral-600"
   }
 ];
 
 export function Features() {
-  const { t } = useLanguage();
-  const features = getFeatures(t);
-
   return (
     <section className="py-24 bg-neutral-50 dark:bg-neutral-900" id="features">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         {/* Section Header */}
         <div className="text-center max-w-3xl mx-auto mb-16">
           <h2 className="text-4xl md:text-5xl font-extrabold text-neutral-900 dark:text-neutral-100 mb-4">
-            {t('features.title')}
+            Tutto ciò di cui hai bisogno
           </h2>
           <p className="text-xl text-neutral-700 dark:text-neutral-300 font-medium">
-            {t('features.subtitle')}
+            Funzionalità pensate per semplificare la gestione del tuo team
           </p>
         </div>
 
@@ -101,11 +97,11 @@ export function Features() {
                   <div className={`w-12 h-12 rounded-lg bg-primary-50 dark:bg-primary-900/20 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform`}>
                     <Icon className={`h-6 w-6 ${feature.color}`} />
                   </div>
-                  <CardTitle className="text-xl text-neutral-900 dark:text-neutral-100">{t(feature.titleKey)}</CardTitle>
+                  <CardTitle className="text-xl text-neutral-900 dark:text-neutral-100">{feature.title}</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <CardDescription className="text-base text-neutral-700 dark:text-neutral-300">
-                    {t(feature.descriptionKey)}
+                    {feature.description}
                   </CardDescription>
                 </CardContent>
               </Card>

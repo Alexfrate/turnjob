@@ -1,151 +1,214 @@
 {
-  "nav": {
-    "features": "Funzionalità",
-    "pricing": "Prezzi",
-    "about": "Chi Siamo",
-    "login": "Accedi",
-    "getStarted": "Inizia Gratis"
-  },
-  "hero": {
-    "badge": "Gestione Turni Intelligente",
-    "title": "Gestisci i turni del tuo team",
-    "titleHighlight": "in modo semplice",
-    "subtitle": "La piattaforma completa per la gestione di ferie, permessi e turni. Risparmia tempo, riduci gli errori e migliora la soddisfazione del team.",
-    "cta": "Inizia Gratis",
-    "ctaSecondary": "Guarda Demo",
-    "trustedBy": "Usato da oltre 500 aziende",
-    "stats": {
-      "users": "Utenti Attivi",
-      "time": "Ore Risparmiate",
-      "satisfaction": "Soddisfazione"
+  "Index": {
+    "title": "Turnjob - Gestione Turni Intelligente",
+    "nav": {
+      "features": "Funzionalità",
+      "pricing": "Prezzi",
+      "about": "Chi Siamo",
+      "login": "Accedi",
+      "register": "Registrati"
+    },
+    "hero": {
+      "badge": "Novità: Gestione Turni AI 2.0",
+      "title": "Pianifica i turni",
+      "subtitle": "in pochi secondi",
+      "description": "La soluzione completa per la gestione dei turni, ferie e permessi. Ottimizza il tuo tempo e riduci gli errori con la nostra piattaforma intelligente.",
+      "cta": {
+        "primary": "Inizia Gratis",
+        "secondary": "Accedi"
+      },
+      "social": {
+        "companies": "500+ Aziende",
+        "shifts": "1M+ Turni",
+        "satisfaction": "99% Soddisfazione"
+      }
+    },
+    "features": {
+      "title": "Tutto ciò che ti serve",
+      "subtitle": "Strumenti potenti per gestire il tuo team in modo efficiente"
+    },
+    "feature": {
+      "calendar": {
+        "title": "Calendario Intelligente",
+        "description": "Pianifica i turni con un'interfaccia drag-and-drop intuitiva."
+      },
+      "validation": {
+        "title": "Validazione Automatica",
+        "description": "Previene conflitti e assicura il rispetto delle regole aziendali."
+      },
+      "positions": {
+        "title": "Gestione Ruoli",
+        "description": "Assegna turni basati sulle competenze e ruoli del personale."
+      },
+      "dashboard": {
+        "title": "Dashboard Analitica",
+        "description": "Monitora costi, ore lavorate e performance in tempo reale."
+      },
+      "quotas": {
+        "title": "Gestione Ferie",
+        "description": "Traccia ferie, permessi e malattie con approvazione automatica."
+      },
+      "notifications": {
+        "title": "Notifiche Smart",
+        "description": "Avvisa il team di nuovi turni o modifiche via email/SMS."
+      },
+      "security": {
+        "title": "Sicurezza Enterprise",
+        "description": "Dati protetti con crittografia end-to-end e backup automatici."
+      },
+      "performance": {
+        "title": "Performance",
+        "description": "Ottimizza la copertura dei turni per massimizzare la produttività."
+      },
+      "blackout": {
+        "title": "Periodi Blackout",
+        "description": "Blocca le richieste di ferie nei periodi di alta stagione."
+      }
+    },
+    "pricing": {
+      "title": "Piani Semplici e Trasparenti",
+      "subtitle": "Scegli il piano più adatto alle esigenze della tua azienda",
+      "trial": "Prova gratuita di 14 giorni. Nessuna carta di credito richiesta.",
+      "starter": {
+        "name": "Starter",
+        "description": "Perfetto per piccoli team",
+        "price": "29",
+        "period": "mese",
+        "cta": "Inizia Gratis",
+        "feature1": "Fino a 10 dipendenti",
+        "feature2": "Pianificazione turni base",
+        "feature3": "Gestione ferie e permessi",
+        "feature4": "Export PDF/Excel",
+        "feature5": "Supporto email",
+        "feature6": "App mobile dipendenti"
+      },
+      "professional": {
+        "name": "Professional",
+        "description": "Per aziende in crescita",
+        "price": "79",
+        "period": "mese",
+        "cta": "Inizia Prova",
+        "popular": "Più Popolare",
+        "feature1": "Fino a 50 dipendenti",
+        "feature2": "Tutto in Starter",
+        "feature3": "Pianificazione AI avanzata",
+        "feature4": "Reportistica avanzata",
+        "feature5": "Gestione multi-sede",
+        "feature6": "Integrazione paghe",
+        "feature7": "Supporto prioritario",
+        "feature8": "API access"
+      },
+      "enterprise": {
+        "name": "Enterprise",
+        "description": "Per grandi organizzazioni",
+        "price": "Custom",
+        "priceLabel": "Contattaci",
+        "cta": "Contatta Vendite",
+        "feature1": "Dipendenti illimitati",
+        "feature2": "Tutto in Professional",
+        "feature3": "SSO & SAML",
+        "feature4": "Audit logs",
+        "feature5": "SLA garantito",
+        "feature6": "Account Manager dedicato",
+        "feature7": "Training personalizzato",
+        "feature8": "Custom integrations",
+        "feature9": "On-premise option"
+      }
+    },
+    "cta": {
+      "title": "Gestisci i turni in modo intelligente",
+      "description": "Semplifica la gestione del personale con la nostra piattaforma intuitiva.",
+      "primary": "Inizia Ora",
+      "secondary": "Richiedi Demo"
+    },
+    "footer": {
+      "description": "La piattaforma completa per la gestione dei turni e del personale.",
+      "titles": {
+        "product": "Prodotto",
+        "company": "Azienda",
+        "resources": "Risorse",
+        "legal": "Legale"
+      },
+      "copyright": "Tutti i diritti riservati.",
+      "made": "Fatto con ❤️ in Italia",
+      "product": {
+        "features": "Funzionalità",
+        "pricing": "Prezzi",
+        "demo": "Demo",
+        "roadmap": "Roadmap"
+      },
+      "company": {
+        "about": "Chi Siamo",
+        "blog": "Blog",
+        "careers": "Lavora con noi",
+        "contact": "Contatti"
+      },
+      "resources": {
+        "docs": "Documentazione",
+        "guides": "Guide",
+        "api": "API",
+        "support": "Supporto"
+      }
     }
   },
-  "features": {
-    "title": "Tutto ciò di cui hai bisogno",
-    "subtitle": "Strumenti potenti per semplificare la gestione dei turni",
-    "calendar": {
-      "title": "Calendario Intelligente",
-      "description": "Visualizza e gestisci tutti i turni in un'unica vista. Identifica conflitti e slot disponibili in tempo reale."
+  "Dashboard": {
+    "welcome": "Bentornato",
+    "nav": {
+      "home": "Home",
+      "schedule": "Turni",
+      "requests": "Richieste",
+      "team": "Team",
+      "settings": "Impostazioni",
+      "admin": "Amministrazione"
+    },
+    "sidebar": {
+      "dashboard": "Dashboard",
+      "calendar": "Calendario",
+      "requests": "Richieste",
+      "team": "Team",
+      "positions": "Ruoli",
+      "settings": "Impostazioni",
+      "logout": "Esci"
+    },
+    "title": "Dashboard",
+    "subtitle": "Panoramica delle attività e dei turni.",
+    "stats": {
+      "pending": "Richieste in Attesa",
+      "pendingChange": "+2 da ieri",
+      "approved": "Approvate (Mese)",
+      "approvedChange": "+5 rispetto al mese scorso",
+      "active": "Dipendenti Attivi",
+      "activeChange": "98% tasso presenza",
+      "shifts": "Turni Totali (Mese)",
+      "shiftsChange": "+12 rispetto al mese scorso"
+    },
+    "actions": {
+      "title": "Azioni Rapide",
+      "subtitle": "Accesso veloce alle funzionalità più usate",
+      "viewCalendar": "Vedi Calendario",
+      "viewCalendarDesc": "Gestisci turni e orari",
+      "manageTeam": "Gestisci Team",
+      "manageTeamDesc": "Aggiungi o modifica dipendenti",
+      "approveRequests": "Approva Richieste",
+      "approveRequestsDesc": "Gestisci ferie e permessi",
+      "onboarding": "Completa Setup",
+      "getStarted": "Vai"
     },
     "requests": {
-      "title": "Richieste Automatiche",
-      "description": "I dipendenti possono richiedere ferie e permessi direttamente dall'app. Approva o rifiuta con un click."
+      "title": "Richieste Recenti",
+      "subtitle": "Ultime richieste di ferie e permessi",
+      "pending": "In Attesa"
     },
-    "notifications": {
-      "title": "Notifiche Real-time",
-      "description": "Rimani sempre aggiornato con notifiche istantanee via email e push per ogni cambio di stato."
+    "calendar": {
+      "title": "Panoramica Calendario",
+      "subtitle": "Prossimi turni e scadenze",
+      "coming": "Funzionalità in arrivo..."
     },
-    "reports": {
-      "title": "Report & Analytics",
-      "description": "Monitora ore lavorate, ferie residue e analizza i trend del tuo team con report dettagliati."
-    },
-    "mobile": {
-      "title": "Mobile First",
-      "description": "Accedi da qualsiasi dispositivo. L'app è ottimizzata per smartphone e tablet."
-    },
-    "security": {
-      "title": "Sicurezza Avanzata",
-      "description": "I tuoi dati sono protetti con crittografia end-to-end e backup automatici giornalieri."
-    }
+    "search": "Cerca..."
   },
-  "howItWorks": {
-    "title": "Come Funziona",
-    "subtitle": "Inizia in 3 semplici passi",
-    "step1": {
-      "title": "Crea il tuo Account",
-      "description": "Registrati gratuitamente e configura la tua azienda in pochi minuti."
-    },
-    "step2": {
-      "title": "Invita il Team",
-      "description": "Aggiungi i tuoi dipendenti e assegna ruoli e permessi."
-    },
-    "step3": {
-      "title": "Inizia a Gestire",
-      "description": "Gestisci richieste, turni e ferie in un'unica piattaforma centralizzata."
-    }
-  },
-  "pricing": {
-    "title": "Prezzi Semplici e Trasparenti",
-    "subtitle": "Scegli il piano perfetto per la tua azienda",
-    "monthly": "Mensile",
-    "yearly": "Annuale",
-    "save": "Risparmia 20%",
-    "starter": {
-      "name": "Starter",
-      "price": "Gratis",
-      "description": "Perfetto per piccoli team",
-      "features": [
-        "Fino a 5 utenti",
-        "Calendario base",
-        "Richieste ferie",
-        "Support via email",
-        "1 GB storage"
-      ],
-      "cta": "Inizia Gratis"
-    },
-    "professional": {
-      "name": "Professional",
-      "price": "€29",
-      "priceYearly": "€24",
-      "description": "Per team in crescita",
-      "features": [
-        "Fino a 50 utenti",
-        "Calendario avanzato",
-        "Report & Analytics",
-        "Support prioritario",
-        "10 GB storage",
-        "Integrazioni API"
-      ],
-      "cta": "Inizia Trial",
-      "popular": "Più Popolare"
-    },
-    "enterprise": {
-      "name": "Enterprise",
-      "price": "Custom",
-      "description": "Per grandi organizzazioni",
-      "features": [
-        "Utenti illimitati",
-        "Tutte le funzionalità Pro",
-        "Support dedicato 24/7",
-        "Storage illimitato",
-        "SLA garantito",
-        "Personalizzazioni custom"
-      ],
-      "cta": "Contattaci"
-    },
-    "perMonth": "/mese",
-    "perUser": "per utente"
-  },
-  "cta": {
-    "title": "Pronto per semplificare la gestione dei turni?",
-    "subtitle": "Unisciti a centinaia di aziende che hanno già scelto Turnjob",
-    "button": "Inizia Gratis Oggi"
-  },
-  "footer": {
-    "description": "La piattaforma completa per la gestione di turni, ferie e permessi.",
-    "product": "Prodotto",
-    "company": "Azienda",
-    "legal": "Legale",
-    "features": "Funzionalità",
-    "pricing": "Prezzi",
-    "about": "Chi Siamo",
-    "blog": "Blog",
-    "careers": "Lavora con Noi",
-    "contact": "Contatti",
-    "privacy": "Privacy Policy",
-    "terms": "Termini di Servizio",
-    "rights": "Tutti i diritti riservati."
-  },
-  "common": {
-    "loading": "Caricamento...",
-    "error": "Errore",
-    "success": "Successo",
-    "cancel": "Annulla",
-    "save": "Salva",
-    "delete": "Elimina",
-    "edit": "Modifica",
-    "back": "Indietro",
-    "next": "Avanti",
-    "close": "Chiudi"
+  "Onboarding": {
+    "title": "Setup Aziendale",
+    "description": "Configura la tua azienda con l'aiuto dell'AI",
+    "start": "Inizia Setup"
   }
 }

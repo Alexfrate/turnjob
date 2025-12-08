@@ -1,0 +1,136 @@
+/* Dark mode styles for react-big-calendar */
+.dark .rbc-calendar {
+  background: rgb(17 24 39);
+  color: rgb(243 244 246);
+}
+
+.dark .rbc-header {
+  background: rgb(31 41 55);
+  color: rgb(243 244 246);
+  border-bottom: 1px solid rgb(55 65 81);
+  padding: 8px 6px;
+  font-weight: 600;
+}
+
+.dark .rbc-month-view,
+.dark .rbc-time-view {
+  background: rgb(17 24 39);
+  border: 1px solid rgb(55 65 81);
+}
+
+.dark .rbc-month-row {
+  border-bottom: 1px solid rgb(55 65 81);
+}
+
+.dark .rbc-date-cell {
+  color: rgb(243 244 246);
+  padding: 4px;
+  border-right: 1px solid rgb(55 65 81);
+}
+
+.dark .rbc-date-cell > a {
+  color: rgb(243 244 246);
+}
+
+.dark .rbc-date-cell.rbc-off-range {
+  color: rgb(107 114 128);
+}
+
+.dark .rbc-date-cell.rbc-off-range-bg {
+  background: rgb(31 41 55);
+}
+
+.dark .rbc-today {
+  background-color: rgb(59 130 246 / 0.1);
+}
+
+.dark .rbc-toolbar {
+  flex-wrap: wrap;
+  margin-bottom: 1rem;
+  background: rgb(17 24 39);
+  border: 1px solid rgb(55 65 81);
+  border-radius: 6px;
+  padding: 12px;
+}
+
+.dark .rbc-toolbar button {
+  color: rgb(243 244 246);
+  background: rgb(31 41 55);
+  border: 1px solid rgb(55 65 81);
+  border-radius: 4px;
+  padding: 6px 12px;
+  transition: all 0.2s;
+}
+
+.dark .rbc-toolbar button:hover {
+  background: rgb(55 65 81);
+  border-color: rgb(75 85 99);
+}
+
+.dark .rbc-toolbar button.rbc-active {
+  background: rgb(59 130 246);
+  border-color: rgb(59 130 246);
+  color: white;
+}
+
+.dark .rbc-toolbar-label {
+  color: rgb(243 244 246);
+  font-size: 1.125rem;
+  font-weight: 600;
+  margin: 0 1rem;
+}
+
+.dark .rbc-event {
+  border-radius: 4px;
+  border: none;
+  padding: 2px 4px;
+}
+
+.dark .rbc-event.rbc-selected {
+  box-shadow: 0 0 0 2px rgb(59 130 246);
+}
+
+.dark .rbc-slot-selection {
+  background-color: rgb(59 130 246 / 0.1);
+}
+
+.dark .rbc-time-slot {
+  border-top: 1px solid rgb(55 65 81);
+}
+
+.dark .rbc-timeslot-group {
+  border-bottom: 1px solid rgb(55 65 81);
+}
+
+.dark .rbc-time-header-cell {
+  border-bottom: 1px solid rgb(55 65 81);
+  color: rgb(243 244 246);
+}
+
+.dark .rbc-time-view .rbc-header {
+  border-bottom: 1px solid rgb(55 65 81);
+}
+
+.dark .rbc-agenda-view {
+  background: rgb(17 24 39);
+  border: 1px solid rgb(55 65 81);
+}
+
+.dark .rbc-agenda-view table {
+  border: 1px solid rgb(55 65 81);
+}
+
+.dark .rbc-agenda-view table thead th {
+  background: rgb(31 41 55);
+  color: rgb(243 244 246);
+  border-bottom: 1px solid rgb(55 65 81);
+}
+
+.dark .rbc-agenda-view table tbody td {
+  border-bottom: 1px solid rgb(55 65 81);
+  color: rgb(243 244 246);
+}
+
+.dark .rbc-agenda-view table tbody tr:nth-child(even) {
+  background: rgb(31 41 55);
+}

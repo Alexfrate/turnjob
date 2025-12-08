@@ -3,11 +3,8 @@
 import Link from "next/link";
 import { ArrowRight, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { useLanguage } from "@/contexts/language-context";
 
 export function CTA() {
-  const { t } = useLanguage();
-
   return (
     <section className="py-24 bg-gradient-to-br from-primary-600 via-primary-500 to-primary-700 dark:from-primary-800 dark:via-primary-900 dark:to-neutral-900 relative overflow-hidden">
       {/* Background decoration */}
@@ -25,12 +22,13 @@ export function CTA() {
 
           {/* Heading */}
           <h2 className="text-4xl md:text-5xl font-extrabold text-white dark:text-neutral-100 mb-6">
-            {t('cta.title')}
+            Pronto a semplificare la gestione dei turni?
           </h2>
 
           {/* Description */}
           <p className="text-xl text-white dark:text-neutral-200 font-medium mb-10 max-w-2xl mx-auto">
-            {t('cta.description')}
+            Unisciti a centinaia di aziende che hanno già rivoluzionato il modo di gestire il proprio team.
+            Inizia oggi stesso, gratis.
           </p>
 
           {/* CTA Buttons */}
@@ -41,7 +39,7 @@ export function CTA() {
               className="bg-white text-primary-600 hover:bg-neutral-100 dark:bg-neutral-100 dark:text-primary-700 dark:hover:bg-white text-lg font-bold px-8 py-6 shadow-xl"
             >
               <Link href="/register">
-                {t('cta.primary')}
+                Inizia Gratis
                 <ArrowRight className="ml-2 h-5 w-5" />
               </Link>
             </Button>
@@ -52,7 +50,7 @@ export function CTA() {
               className="border-2 border-white text-white hover:bg-white/10 dark:border-neutral-300 dark:text-neutral-100 dark:hover:bg-white/20 text-lg font-bold px-8 py-6"
             >
               <Link href="/contact">
-                {t('cta.secondary')}
+                Contattaci
               </Link>
             </Button>
           </div>

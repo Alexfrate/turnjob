@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
+import { createClient } from '@/lib/supabase/server';
 
 /**
  * API Admin - Configurazione LLM
@@ -22,63 +23,32 @@ const ConfigSchema = z.object({
  */
 export async function GET() {
   try {
-    // TODO: Implementare lettura da database tramite Supabase MCP
-    // Per ora ritorniamo dati mock
+    const supabase = await createClient();
 
-    const mockModels = [
-      {
-        id: '1',
-        modelId: 'x-ai/grok-4-fast',
-        displayName: 'Grok 4 Fast',
-        inputCostPer1M: 5.0,
-        outputCostPer1M: 15.0,
-        maxTokens: 131072,
-        isActive: true,
-        priority: 1,
-      },
-      {
-        id: '2',
-        modelId: 'openai/gpt-4o',
-        displayName: 'GPT-4o',
-        inputCostPer1M: 2.5,
-        outputCostPer1M: 10.0,
-        maxTokens: 128000,
-        isActive: true,
-        priority: 2,
-      },
-      {
-        id: '3',
-        modelId: 'openai/gpt-4o-mini',
-        displayName: 'GPT-4o Mini',
-        inputCostPer1M: 0.15,
-        outputCostPer1M: 0.6,
-        maxTokens: 128000,
-        isActive: true,
-        priority: 3,
-      },
-      {
-        id: '4',
-        modelId: 'anthropic/claude-3.5-sonnet',
-        displayName: 'Claude 3.5 Sonnet',
-        inputCostPer1M: 3.0,
-        outputCostPer1M: 15.0,
-        maxTokens: 200000,
-        isActive: true,
-        priority: 4,
-      },
-      {
-        id: '5',
-        modelId: 'anthropic/claude-3-haiku',
-        displayName: 'Claude 3 Haiku',
-        inputCostPer1M: 0.25,
-        outputCostPer1M: 1.25,
-        maxTokens: 200000,
-        isActive: true,
-        priority: 5,
-      },
-    ];
+    // 1. Fetch active models
+    const { data: models, error: modelsError } = await supabase
+      .from('LlmModel')
+      .select('*')
+      .eq('isActive', true)
+      .order('inputCostPer1M', { ascending: true });
 
-    const mockConfig = {
+    if (modelsError) {
+      throw new Error(`Error fetching models: ${modelsError.message}`);
+    }
+
+    // 2. Fetch global configuration (companyId is null)
+    const { data: config, error: configError } = await supabase
+      .from('LlmConfiguration')
+      .select('*')
+      .is('companyId', null)
+      .single();
+
+    if (configError && configError.code !== 'PGRST116') { // Ignore "Row not found" if it's just missing
+      throw new Error(`Error fetching config: ${configError.message}`);
+    }
+
+    // Default config if not found
+    const finalConfig = config || {
       onboardingModelId: 'x-ai/grok-4-fast',
       constraintModelId: 'x-ai/grok-4-fast',
       explanationModelId: 'x-ai/grok-4-fast',
@@ -90,8 +60,16 @@ export async function GET() {
 
     return NextResponse.json({
       success: true,
-      models: mockModels,
-      config: mockConfig,
+      models: models || [],
+      config: {
+        onboardingModelId: finalConfig.onboardingModelId,
+        constraintModelId: finalConfig.constraintModelId,
+        explanationModelId: finalConfig.explanationModelId,
+        validationModelId: finalConfig.validationModelId,
+        dailyBudgetLimit: finalConfig.dailyBudgetLimit,
+        monthlyBudgetLimit: finalConfig.monthlyBudgetLimit,
+        alertThreshold: finalConfig.alertThreshold,
+      },
     });
   } catch (error) {
     console.error('Error fetching LLM config:', error);
@@ -118,10 +96,39 @@ export async function POST(req: NextRequest) {
 
     console.log('[LLM Config] Saving configuration:', validatedConfig);
 
-    // TODO: Implementare salvataggio su database tramite Supabase MCP
-    // Per ora simuliamo un salvataggio con successo
+    const supabase = await createClient();
 
-    await new Promise((resolve) => setTimeout(resolve, 500)); // Simula latenza
+    // First check if exists to decide insert or update (safer without knowing ID)
+    const { data: existing } = await supabase
+      .from('LlmConfiguration')
+      .select('id')
+      .is('companyId', null)
+      .single();
+
+    let updateError;
+
+    if (existing) {
+      const { error: updErr } = await supabase
+        .from('LlmConfiguration')
+        .update({
+          ...validatedConfig,
+          updatedAt: new Date().toISOString(),
+        })
+        .eq('id', existing.id);
+      updateError = updErr;
+    } else {
+      const { error: insErr } = await supabase
+        .from('LlmConfiguration')
+        .insert({
+          companyId: null,
+          ...validatedConfig,
+        });
+      updateError = insErr;
+    }
+
+    if (updateError) {
+      throw new Error(`Error saving config: ${updateError.message}`);
+    }
 
     return NextResponse.json({
       success: true,

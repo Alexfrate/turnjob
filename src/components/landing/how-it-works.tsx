@@ -1,49 +1,45 @@
 "use client";
 
 import { UserPlus, Settings, Calendar, CheckCircle } from "lucide-react";
-import { useLanguage } from "@/contexts/language-context";
 
-const getSteps = (t: (key: string) => string) => [
+const steps = [
   {
     icon: UserPlus,
-    titleKey: "howItWorks.step1.title",
-    descriptionKey: "howItWorks.step1.description",
+    title: "1. Crea il tuo Account",
+    description: "Registrati gratuitamente in pochi secondi. Nessuna carta di credito richiesta.",
     color: "bg-primary-500"
   },
   {
     icon: Settings,
-    titleKey: "howItWorks.step2.title",
-    descriptionKey: "howItWorks.step2.description",
+    title: "2. Configura l'Azienda",
+    description: "Imposta i nuclei, aggiungi i collaboratori e definisci le regole dei turni.",
     color: "bg-primary-600"
   },
   {
     icon: Calendar,
-    titleKey: "howItWorks.step3.title",
-    descriptionKey: "howItWorks.step3.description",
+    title: "3. Pianifica i Turni",
+    description: "Crea e assegna turni con il nostro calendario intuitivo. Drag & drop facile.",
     color: "bg-primary-700"
   },
   {
     icon: CheckCircle,
-    titleKey: "howItWorks.step4.title",
-    descriptionKey: "howItWorks.step4.description",
+    title: "4. Gestisci con Semplicità",
+    description: "Monitora, modifica e ottimizza la gestione del tuo team in tempo reale.",
     color: "bg-success-500"
   }
 ];
 
 export function HowItWorks() {
-  const { t } = useLanguage();
-  const steps = getSteps(t);
-
   return (
     <section className="py-24 bg-white dark:bg-neutral-950">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         {/* Section Header */}
         <div className="text-center max-w-3xl mx-auto mb-16">
           <h2 className="text-4xl md:text-5xl font-extrabold text-neutral-900 dark:text-neutral-100 mb-4">
-            {t('howItWorks.title')}
+            Come Funziona
           </h2>
           <p className="text-xl text-neutral-700 dark:text-neutral-300 font-medium">
-            {t('howItWorks.subtitle')}
+            Inizia a gestire i turni del tuo team in soli 4 semplici passaggi
           </p>
         </div>
 
@@ -67,10 +63,10 @@ export function HowItWorks() {
 
                     {/* Content */}
                     <h3 className="text-xl font-bold text-neutral-900 dark:text-neutral-100 mb-3">
-                      {t(step.titleKey)}
+                      {step.title}
                     </h3>
                     <p className="text-neutral-700 dark:text-neutral-300 font-medium">
-                      {t(step.descriptionKey)}
+                      {step.description}
                     </p>
                   </div>
                 </div>
