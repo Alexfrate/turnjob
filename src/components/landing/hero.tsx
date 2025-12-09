@@ -1,13 +1,37 @@
 "use client";
 
 import Link from "next/link";
+import dynamic from "next/dynamic";
 import { ArrowRight, Calendar, Users, TrendingUp } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 
+// Dynamic import per evitare problemi SSR con Three.js
+const LightPillar = dynamic(() => import("@/components/effects/LightPillar"), {
+  ssr: false,
+  loading: () => null,
+});
+
 export function Hero() {
   return (
     <section className="relative overflow-hidden bg-gradient-to-b from-primary-50 via-white to-white dark:from-neutral-900 dark:via-neutral-950 dark:to-neutral-950 pt-20 pb-32">
+      {/* LightPillar Background Effect */}
+      <div className="absolute inset-0 z-0 pointer-events-none opacity-70">
+        <LightPillar
+          topColor="#0066FF"
+          bottomColor="#7DD3FC"
+          intensity={1.6}
+          rotationSpeed={0.5}
+          glowAmount={0.001}
+          pillarWidth={2.5}
+          pillarHeight={0.5}
+          noiseIntensity={0.02}
+          pillarRotation={65}
+          interactive={false}
+          mixBlendMode="normal"
+        />
+      </div>
+
       {/* Background decoration */}
       <div className="absolute inset-0 -z-10">
         <div className="absolute top-0 left-1/4 w-96 h-96 bg-primary-200 dark:bg-primary-900 rounded-full mix-blend-multiply dark:mix-blend-lighten filter blur-3xl opacity-20 dark:opacity-10 animate-blob"></div>
@@ -15,7 +39,7 @@ export function Hero() {
         <div className="absolute bottom-0 left-1/2 w-96 h-96 bg-warning-200 dark:bg-warning-900 rounded-full mix-blend-multiply dark:mix-blend-lighten filter blur-3xl opacity-20 dark:opacity-10 animate-blob animation-delay-4000"></div>
       </div>
 
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <div className="text-center max-w-4xl mx-auto">
           {/* Badge */}
           <Badge variant="secondary" className="mb-6 text-sm font-semibold px-4 py-2">
