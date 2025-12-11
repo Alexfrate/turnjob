@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { LanguageSelector } from "@/components/language-selector";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
   DropdownMenu,
@@ -108,6 +109,9 @@ export function Header() {
         <div className="flex items-center gap-2">
           {/* Company Switcher */}
           <CompanySwitcher />
+
+          {/* Language Selector */}
+          <LanguageSelector />
 
           {/* Theme Toggle */}
           <ThemeToggle />

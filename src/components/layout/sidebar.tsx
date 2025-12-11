@@ -11,7 +11,8 @@ import {
     Layers,
     UserPlus,
     FileText,
-    Brain
+    Brain,
+    ClipboardList
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { createClient } from "@/lib/supabase/client";
@@ -32,11 +33,12 @@ export function Sidebar() {
 
     const navigation = [
         { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
+        { name: "Turni", href: "/dashboard/turni", icon: ClipboardList },
         { name: "Calendario", href: "/dashboard/calendar", icon: Calendar },
         { name: "Nuclei", href: "/dashboard/nuclei", icon: Layers },
         { name: "Collaboratori", href: "/dashboard/collaboratori", icon: Users },
         { name: "Richieste", href: "/dashboard/richieste", icon: FileText },
-        { name: "Configurazione AI", href: "/dashboard/llm-config", icon: Brain },
+        { name: "Configurazione AI", href: "/ai-config", icon: Brain },
         { name: "Impostazioni", href: "/dashboard/settings", icon: Settings },
     ];
 

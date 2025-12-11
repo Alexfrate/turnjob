@@ -54,44 +54,46 @@ export function Navbar() {
           </div>
 
           {/* Mobile Menu Button */}
-          <button
-            className="md:hidden p-2"
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-          >
-            {mobileMenuOpen ? (
-              <X className="h-6 w-6 text-neutral-700 dark:text-neutral-300" />
-            ) : (
-              <Menu className="h-6 w-6 text-neutral-700 dark:text-neutral-300" />
-            )}
-          </button>
+          <div className="flex items-center gap-2 md:hidden">
+            <ThemeToggle />
+            <button
+              className="p-2 rounded-lg hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors"
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              aria-label={mobileMenuOpen ? "Chiudi menu" : "Apri menu"}
+              aria-expanded={mobileMenuOpen}
+            >
+              {mobileMenuOpen ? (
+                <X className="h-6 w-6 text-neutral-700 dark:text-neutral-300" aria-hidden="true" />
+              ) : (
+                <Menu className="h-6 w-6 text-neutral-700 dark:text-neutral-300" aria-hidden="true" />
+              )}
+            </button>
+          </div>
         </div>
 
         {/* Mobile Menu */}
         {mobileMenuOpen && (
-          <div className="md:hidden py-4 border-t border-neutral-200 dark:border-neutral-800">
-            <div className="flex flex-col gap-4">
+          <div className="md:hidden py-4 border-t border-neutral-200 dark:border-neutral-800 animate-in slide-in-from-top-2 duration-200">
+            <nav className="flex flex-col gap-4" aria-label="Menu di navigazione mobile">
               {navLinks.map((link) => (
                 <Link
                   key={link.name}
                   href={link.href}
-                  className="text-neutral-700 dark:text-neutral-300 hover:text-primary-600 dark:hover:text-primary-400 transition-colors font-medium px-2"
+                  className="text-neutral-700 dark:text-neutral-300 hover:text-primary-600 dark:hover:text-primary-400 transition-colors font-medium px-2 py-2 rounded-lg hover:bg-neutral-100 dark:hover:bg-neutral-800"
                   onClick={() => setMobileMenuOpen(false)}
                 >
                   {link.name}
                 </Link>
               ))}
               <div className="flex flex-col gap-2 pt-4 border-t border-neutral-200 dark:border-neutral-800">
-                <div className="flex items-center justify-center gap-2 pb-2">
-                  <ThemeToggle />
-                </div>
                 <Button asChild variant="ghost" className="w-full font-semibold">
-                  <Link href="/login">Accedi</Link>
+                  <Link href="/login" onClick={() => setMobileMenuOpen(false)}>Accedi</Link>
                 </Button>
                 <Button asChild className="w-full font-semibold">
-                  <Link href="/register">Registrati</Link>
+                  <Link href="/register" onClick={() => setMobileMenuOpen(false)}>Registrati</Link>
                 </Button>
               </div>
-            </div>
+            </nav>
           </div>
         )}
       </div>

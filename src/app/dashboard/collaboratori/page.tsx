@@ -18,7 +18,9 @@ import {
     DialogTrigger,
 } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
-import { Plus, UserPlus, Pencil, Trash2, Loader2, Mail, Phone, Clock } from 'lucide-react';
+import { Plus, UserPlus, Pencil, Trash2, Loader2, Mail, Phone, Clock, Upload, Eye } from 'lucide-react';
+import Link from 'next/link';
+import { ImportDialog } from '@/components/collaboratori/ImportDialog';
 import { useToast } from '@/hooks/use-toast';
 import type { TipoOreContratto, TipoContratto } from '@/types/database';
 
@@ -57,8 +59,16 @@ export default function CollaboratoriPage() {
     const [editingId, setEditingId] = useState<string | null>(null);
     const [form, setForm] = useState<CollaboratoreForm>(defaultForm);
     const [filtroAttivi, setFiltroAttivi] = useState(true);
+    const [isImportDialogOpen, setIsImportDialogOpen] = useState(false);
     // Per tracciare i nuclei originali in modifica (per calcolare diff)
     const [originalNucleiData, setOriginalNucleiData] = useState<{ nucleoId: string; appartenenzaId: string }[]>([]);
+
+    const handleImportComplete = (count: number) => {
+        toast({
+            title: 'Importazione completata',
+            description: `${count} collaboratori importati con successo`,
+        });
+    };
 
     const collaboratoriFiltrati = filtroAttivi
         ? collaboratori.filter(c => c.attivo)
@@ -256,6 +266,11 @@ export default function CollaboratoriPage() {
                             <SelectItem value="tutti">Tutti</SelectItem>
                         </SelectContent>
                     </Select>
+
+                    <Button variant="outline" onClick={() => setIsImportDialogOpen(true)}>
+                        <Upload className="mr-2 h-4 w-4" />
+                        Importa
+                    </Button>
 
                     <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
                         <DialogTrigger asChild>
@@ -470,6 +485,11 @@ export default function CollaboratoriPage() {
                                         </CardDescription>
                                     </div>
                                     <div className="flex gap-1">
+                                        <Link href={`/dashboard/collaboratori/${collab.id}`}>
+                                            <Button variant="ghost" size="icon">
+                                                <Eye className="h-4 w-4" />
+                                            </Button>
+                                        </Link>
                                         <Button variant="ghost" size="icon" onClick={() => handleOpenEdit(collab)}>
                                             <Pencil className="h-4 w-4" />
                                         </Button>
@@ -523,6 +543,13 @@ export default function CollaboratoriPage() {
                     ))}
                 </div>
             )}
+
+            {/* Import Dialog */}
+            <ImportDialog
+                open={isImportDialogOpen}
+                onOpenChange={setIsImportDialogOpen}
+                onImportComplete={handleImportComplete}
+            />
         </div>
     );
 }

@@ -1,4 +1,6 @@
-import { useState } from 'react';
+'use client';
+
+import { useState, useMemo } from 'react';
 import {
   addMonths,
   subMonths,
@@ -13,6 +15,7 @@ import {
   isToday
 } from 'date-fns';
 import { it } from 'date-fns/locale';
+import { useTurni, Turno } from './use-turni';
 
 export type DateRange = {
   from: Date | null;
@@ -57,6 +60,12 @@ export interface CalendarShift {
     description: string;
     completed: boolean;
   }>;
+  // Dati originali del turno
+  turnoOriginale?: Turno;
+  numCollaboratoriRichiesti?: number;
+  numCollaboratoriAssegnati?: number;
+  pubblicato?: boolean;
+  completato?: boolean;
 }
 
 export interface CalendarAbsence {
@@ -70,12 +79,79 @@ export interface CalendarAbsence {
   notes?: string;
 }
 
+// Helper per calcolare le ore tra due orari
+function calculateHours(startTime: string, endTime: string): number {
+  const [startH, startM] = startTime.split(':').map(Number);
+  const [endH, endM] = endTime.split(':').map(Number);
+  const startMinutes = startH * 60 + startM;
+  const endMinutes = endH * 60 + endM;
+  return (endMinutes - startMinutes) / 60;
+}
+
+// Converti Turno dal DB a CalendarShift per il calendario
+function turnoToCalendarShift(turno: Turno): CalendarShift {
+  const collaboratori = turno.Assegnazione_Turno?.map(a => ({
+    id: a.Collaboratore?.id || a.collaboratore_id,
+    nome: a.Collaboratore?.nome || '',
+    cognome: a.Collaboratore?.cognome || '',
+  })) || [];
+
+  return {
+    id: turno.id,
+    date: turno.data.split('T')[0], // Formato YYYY-MM-DD
+    startTime: turno.ora_inizio,
+    endTime: turno.ora_fine,
+    hours: calculateHours(turno.ora_inizio, turno.ora_fine),
+    userId: collaboratori[0]?.id || '',
+    userName: collaboratori[0] ? `${collaboratori[0].nome} ${collaboratori[0].cognome}` : 'Non assegnato',
+    position: turno.Nucleo?.mansione,
+    nucleoId: turno.nucleo_id,
+    nucleoNome: turno.Nucleo?.nome,
+    nucleoColore: turno.Nucleo?.colore || '#3b82f6',
+    collaboratori,
+    notes: turno.note,
+    turnoOriginale: turno,
+    numCollaboratoriRichiesti: turno.num_collaboratori_richiesti,
+    numCollaboratoriAssegnati: turno.Assegnazione_Turno?.length || 0,
+    pubblicato: turno.pubblicato,
+    completato: turno.completato,
+  };
+}
+
 export function useCalendar() {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [dateRange, setDateRange] = useState<DateRange>({ from: null, to: null });
 
   // Always use Italian locale
   const dateFnsLocale = it;
+
+  // Calcola range date per il mese corrente (con margine per settimane)
+  const monthStart = startOfWeek(startOfMonth(currentDate), { locale: dateFnsLocale });
+  const monthEnd = endOfWeek(endOfMonth(currentDate), { locale: dateFnsLocale });
+
+  // Fetch turni dal database
+  const { data: turniData, isLoading, error, refetch } = useTurni({
+    data_inizio: format(monthStart, 'yyyy-MM-dd'),
+    data_fine: format(monthEnd, 'yyyy-MM-dd'),
+  });
+
+  // Converti turni in formato calendario
+  const shifts = useMemo(() => {
+    if (!turniData) return [];
+    return turniData.map(turnoToCalendarShift);
+  }, [turniData]);
+
+  // Raggruppa turni per data
+  const shiftsByDate = useMemo(() => {
+    const grouped: Record<string, CalendarShift[]> = {};
+    for (const shift of shifts) {
+      if (!grouped[shift.date]) {
+        grouped[shift.date] = [];
+      }
+      grouped[shift.date].push(shift);
+    }
+    return grouped;
+  }, [shifts]);
 
   const handleDateSelect = (date: Date) => {
     if (!dateRange.from || (dateRange.from && dateRange.to)) {
@@ -105,23 +181,43 @@ export function useCalendar() {
     end: endOfWeek(startOfWeek(currentDate, { locale: dateFnsLocale }), { locale: dateFnsLocale })
   }).map(day => format(day, 'EEEE', { locale: dateFnsLocale }));
 
-  // Mock data for shifts/availability
-  const shiftsData: Record<string, { type: 'full' | 'partial' | 'free'; label: string }> = {
-    '2024-11-28': { type: 'full', label: 'Completo' },
-    '2024-11-29': { type: 'partial', label: '2 slot liberi' },
-    '2024-11-30': { type: 'free', label: 'Tutto libero' },
-  };
-
-  const getDayStatus = (date: Date) => {
+  // Calcola stato del giorno basato sui turni reali
+  const getDayStatus = (date: Date): { type: 'full' | 'partial' | 'free'; label: string } | undefined => {
     const key = format(date, 'yyyy-MM-dd');
-    return shiftsData[key];
+    const dayShifts = shiftsByDate[key];
+
+    if (!dayShifts || dayShifts.length === 0) {
+      return undefined; // Nessun turno programmato
+    }
+
+    // Calcola se tutti i turni sono completi (tutti i posti assegnati)
+    let totalRichiesti = 0;
+    let totalAssegnati = 0;
+
+    for (const shift of dayShifts) {
+      totalRichiesti += shift.numCollaboratoriRichiesti || 1;
+      totalAssegnati += shift.numCollaboratoriAssegnati || 0;
+    }
+
+    if (totalAssegnati === 0) {
+      return { type: 'free', label: `${dayShifts.length} turni da assegnare` };
+    } else if (totalAssegnati >= totalRichiesti) {
+      return { type: 'full', label: `${dayShifts.length} turni completi` };
+    } else {
+      const mancanti = totalRichiesti - totalAssegnati;
+      return { type: 'partial', label: `${mancanti} posti liberi` };
+    }
   };
 
-  // Mock data for calendar views
-  const shifts: CalendarShift[] = [];
+  // Ottieni turni per una data specifica
+  const getShiftsForDate = (date: Date): CalendarShift[] => {
+    const key = format(date, 'yyyy-MM-dd');
+    return shiftsByDate[key] || [];
+  };
+
+  // TODO: Implementare quando avremo l'API richieste
   const absences: CalendarAbsence[] = [];
   const employeeStatuses: EmployeeStatus[] = [];
-  const isLoading = false;
 
   return {
     currentDate,
@@ -138,10 +234,16 @@ export function useCalendar() {
     isToday,
     format,
     getDayStatus,
+    getShiftsForDate,
     // Calendar data
     shifts,
+    shiftsByDate,
     absences,
     employeeStatuses,
-    isLoading
+    isLoading,
+    error,
+    refetch,
+    // Raw data
+    turniData,
   };
 }

@@ -31,41 +31,41 @@ const steps = [
 
 export function HowItWorks() {
   return (
-    <section className="py-24 bg-white dark:bg-neutral-950">
+    <section className="py-16 sm:py-20 md:py-24 bg-white dark:bg-neutral-950">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         {/* Section Header */}
-        <div className="text-center max-w-3xl mx-auto mb-16">
-          <h2 className="text-4xl md:text-5xl font-extrabold text-neutral-900 dark:text-neutral-100 mb-4">
+        <div className="text-center max-w-3xl mx-auto mb-12 sm:mb-16">
+          <h2 className="text-3xl sm:text-4xl md:text-5xl font-extrabold text-neutral-900 dark:text-white mb-4">
             Come Funziona
           </h2>
-          <p className="text-xl text-neutral-700 dark:text-neutral-300 font-medium">
+          <p className="text-lg sm:text-xl text-neutral-600 dark:text-neutral-200 font-medium">
             Inizia a gestire i turni del tuo team in soli 4 semplici passaggi
           </p>
         </div>
 
         {/* Steps */}
         <div className="max-w-5xl mx-auto">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 sm:gap-10">
             {steps.map((step, index) => {
               const Icon = step.icon;
               return (
                 <div key={index} className="relative">
                   {/* Connector Line */}
                   {index < steps.length - 1 && (
-                    <div className="hidden lg:block absolute top-12 left-full w-full h-0.5 bg-gradient-to-r from-primary-300 to-transparent -z-10"></div>
+                    <div className="hidden lg:block absolute top-12 left-full w-full h-0.5 bg-gradient-to-r from-primary-400 via-primary-300 to-transparent dark:from-primary-600 dark:via-primary-700 dark:to-transparent -z-10"></div>
                   )}
 
                   <div className="text-center">
                     {/* Icon */}
-                    <div className={`w-24 h-24 ${step.color} rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg transform hover:scale-110 transition-transform`}>
-                      <Icon className="h-12 w-12 text-white" />
+                    <div className={`w-20 h-20 sm:w-24 sm:h-24 ${step.color} rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg transform hover:scale-110 transition-transform duration-300`}>
+                      <Icon className="h-10 w-10 sm:h-12 sm:w-12 text-white" aria-hidden="true" />
                     </div>
 
                     {/* Content */}
-                    <h3 className="text-xl font-bold text-neutral-900 dark:text-neutral-100 mb-3">
+                    <h3 className="text-lg sm:text-xl font-bold text-neutral-900 dark:text-white mb-3">
                       {step.title}
                     </h3>
-                    <p className="text-neutral-700 dark:text-neutral-300 font-medium">
+                    <p className="text-sm sm:text-base text-neutral-600 dark:text-neutral-200 font-medium leading-relaxed">
                       {step.description}
                     </p>
                   </div>

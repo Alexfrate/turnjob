@@ -5,6 +5,9 @@ import { createClient } from '@/lib/supabase/client';
 import { useAzienda } from './use-azienda';
 import type { CollaboratoreConNuclei, CollaboratoreInsert, CollaboratoreUpdate } from '@/types/database';
 
+// Re-export types for use in other components
+export type { CollaboratoreConNuclei, CollaboratoreInsert, CollaboratoreUpdate } from '@/types/database';
+
 export function useCollaboratori() {
     const { aziendaId, isLoading: aziendaLoading } = useAzienda();
     const queryClient = useQueryClient();

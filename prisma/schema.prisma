@@ -20,11 +20,11 @@ enum UserRole {
 }
 
 enum RequestType {
-  VACATION    // Ferie
-  PERMISSION  // Permessi
-  DAY_OFF     // Riposo
-  ROL         // Riduzione Orario Lavoro
-  SICK_LEAVE  // Malattia
+  VACATION // Ferie
+  PERMISSION // Permessi
+  DAY_OFF // Riposo
+  ROL // Riduzione Orario Lavoro
+  SICK_LEAVE // Malattia
 }
 
 enum RequestStatus {
@@ -53,72 +53,108 @@ enum ScheduleStatus {
 }
 
 // ============================================
+// AI SCHEDULING ENUMS
+// ============================================
+
+enum AIModeType {
+  SUGGESTION // AI propone, admin approva singolarmente
+  SEMI_AUTOMATIC // AI genera bozza settimanale, admin rivede
+  AUTONOMOUS // AI genera e pubblica automaticamente
+  DISABLED // AI disabilitata
+}
+
+enum CriticalPeriodSource {
+  AI_DETECTED // Rilevato automaticamente dall'AI
+  MANUAL // Definito manualmente dall'admin
+  HYBRID // Suggerito AI, confermato admin
+}
+
+enum PreferenceType {
+  AVAILABLE // Disponibile per quel turno
+  PREFERRED // Preferisce quel turno
+  UNAVAILABLE // Non disponibile
+}
+
+enum PreferenceValidationStatus {
+  PENDING // In attesa di validazione
+  APPROVED // Approvata
+  REJECTED_CONFLICT // Rifiutata: conflitto con altro collaboratore stesso nucleo
+  REJECTED_CRITICAL // Rifiutata: periodo critico
+  REJECTED_CONSTRAINT // Rifiutata: viola vincoli
+}
+
+// ============================================
 // CORE ENTITIES
 // ============================================
 
 model Company {
-  id                    String      @id @default(uuid())
-  name                  String
-  email                 String      @unique
-  logo                  String?
-  industry              String?     // "restaurant", "retail", "hospitality"
+  id       String  @id @default(uuid())
+  name     String
+  email    String  @unique
+  logo     String?
+  industry String? // "restaurant", "retail", "hospitality"
 
   // Onboarding
   preferredOnboardingMode OnboardingMode @default(MANUAL)
-  hasCompletedOnboarding  Boolean    @default(false)
-  onboardingStep          Int        @default(0)
-  aiOnboardingData        Json?      // Conversazione + vincoli estratti
+  hasCompletedOnboarding  Boolean        @default(false)
+  onboardingStep          Int            @default(0)
+  aiOnboardingData        Json? // Conversazione + vincoli estratti
 
   // Business Rules (JSONB per flessibilità)
-  businessRules         Json        @default("{}")
+  businessRules Json @default("{}")
 
   // Settings
-  settings              Json        @default("{}")
-  timezone              String      @default("Europe/Rome")
-  locale                String      @default("it")
+  settings Json   @default("{}")
+  timezone String @default("Europe/Rome")
+  locale   String @default("it")
 
   // Configurazioni globali
-  minAdvanceNoticeDays Int      @default(3)
-  allowWeekendRequests Boolean  @default(true)
+  minAdvanceNoticeDays Int     @default(3)
+  allowWeekendRequests Boolean @default(true)
 
   // Relationships
-  users                 User[]
-  positions             Position[]
-  schedules             Schedule[]
-  constraints           Constraint[]
-  timeOffPolicies       TimeOffPolicy[]
-  blackoutPeriods       BlackoutPeriod[]
-  onboardingSessions    OnboardingSession[]
-  llmConfiguration      LlmConfiguration?
+  users              User[]
+  positions          Position[]
+  schedules          Schedule[]
+  constraints        Constraint[]
+  timeOffPolicies    TimeOffPolicy[]
+  blackoutPeriods    BlackoutPeriod[]
+  onboardingSessions OnboardingSession[]
+  llmConfiguration   LlmConfiguration?
 
-  createdAt             DateTime    @default(now())
-  updatedAt             DateTime    @updatedAt
+  // AI Scheduling relationships
+  aiSchedulingConfig AISchedulingConfig?
+  criticalPeriods    CriticalPeriod[]
+  aiGenerationRuns   AIGenerationRun[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@index([email])
 }
 
 model User {
-  id                String      @id @default(uuid())
-  email             String      @unique
-  name              String
-  avatar            String?
-  phone             String?
-  role              UserRole    @default(EMPLOYEE)
+  id     String   @id @default(uuid())
+  email  String   @unique
+  name   String
+  avatar String?
+  phone  String?
+  role   UserRole @default(EMPLOYEE)
 
-  companyId         String
-  company           Company     @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  companyId String
+  company   Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
 
-  positionId        String?
-  position          Position?   @relation(fields: [positionId], references: [id])
+  positionId String?
+  position   Position? @relation(fields: [positionId], references: [id])
 
   // Employment details
-  hireDate          DateTime?
-  employmentType    String?     // "full_time", "part_time", "contractor"
-  isActive          Boolean     @default(true)
+  hireDate       DateTime?
+  employmentType String? // "full_time", "part_time", "contractor"
+  isActive       Boolean   @default(true)
 
   // Availability & Preferences (JSONB)
-  availability      Json?       // Weekly patterns, recurring unavailability
-  preferences       Json?       // Shift preferences, colleagues, days off
+  availability Json? // Weekly patterns, recurring unavailability
+  preferences  Json? // Shift preferences, colleagues, days off
 
   // Custom quota overrides (null = use policy defaults)
   customVacationDays    Int?
@@ -126,14 +162,17 @@ model User {
   customRolHours        Int?
 
   // Skills
-  skills            EmployeeSkill[]
+  skills EmployeeSkill[]
 
   // Relationships
-  requests          Request[]
-  shiftAssignments  ShiftAssignment[]
+  requests         Request[]
+  shiftAssignments ShiftAssignment[]
 
-  createdAt         DateTime    @default(now())
-  updatedAt         DateTime    @updatedAt
+  // AI Scheduling - Preferenze turni collaboratore
+  shiftPreferences EmployeePreference[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@index([companyId])
   @@index([positionId])
@@ -141,53 +180,53 @@ model User {
 }
 
 model Position {
-  id                    String      @id @default(uuid())
-  name                  String      // "Cameriere", "Cuoco", "Barista"
-  description           String?
-  color                 String      @default("#3b82f6")
+  id          String  @id @default(uuid())
+  name        String // "Cameriere", "Cuoco", "Barista"
+  description String?
+  color       String  @default("#3b82f6")
 
-  companyId             String
-  company               Company     @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  companyId String
+  company   Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
 
   // Scheduling constraints
-  maxSimultaneousAbsences Int       @default(1)
-  minStaffPerShift        Int       @default(1)
+  maxSimultaneousAbsences Int @default(1)
+  minStaffPerShift        Int @default(1)
 
   // Required skills for position
-  requiredSkillIds      String[]    // Array of skill IDs
+  requiredSkillIds String[] // Array of skill IDs
 
-  users                 User[]
+  users User[]
 
-  createdAt             DateTime    @default(now())
-  updatedAt             DateTime    @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@unique([companyId, name])
   @@index([companyId])
 }
 
 model Skill {
-  id              String          @id @default(uuid())
-  name            String          // "Barista", "Sommelier", "First Aid"
-  category        String?         // "technical", "certification", "soft_skill"
+  id       String  @id @default(uuid())
+  name     String // "Barista", "Sommelier", "First Aid"
+  category String? // "technical", "certification", "soft_skill"
 
-  employees       EmployeeSkill[]
+  employees EmployeeSkill[]
 
-  createdAt       DateTime        @default(now())
+  createdAt DateTime @default(now())
 
   @@unique([name])
 }
 
 model EmployeeSkill {
-  id              String    @id @default(uuid())
-  userId          String
-  user            User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id     String @id @default(uuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  skillId         String
-  skill           Skill     @relation(fields: [skillId], references: [id], onDelete: Cascade)
+  skillId String
+  skill   Skill  @relation(fields: [skillId], references: [id], onDelete: Cascade)
 
-  proficiency     Int       @default(1) // 1-5 scale
-  certifiedAt     DateTime?
-  expiresAt       DateTime?
+  proficiency Int       @default(1) // 1-5 scale
+  certifiedAt DateTime?
+  expiresAt   DateTime?
 
   @@unique([userId, skillId])
 }
@@ -197,35 +236,35 @@ model EmployeeSkill {
 // ============================================
 
 model Schedule {
-  id              String          @id @default(uuid())
-  name            String
+  id   String @id @default(uuid())
+  name String
 
-  companyId       String
-  company         Company         @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  companyId String
+  company   Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
 
-  startDate       DateTime
-  endDate         DateTime
+  startDate DateTime
+  endDate   DateTime
 
-  generationType  ScheduleGenerationType @default(MANUAL)
-  status          ScheduleStatus  @default(DRAFT)
+  generationType ScheduleGenerationType @default(MANUAL)
+  status         ScheduleStatus         @default(DRAFT)
 
   // AI metadata
-  aiMetadata      Json?           // Model version, confidence, parameters
+  aiMetadata Json? // Model version, confidence, parameters
 
   // Version control
-  parentId        String?
-  parent          Schedule?       @relation("ScheduleVersions", fields: [parentId], references: [id])
-  versions        Schedule[]      @relation("ScheduleVersions")
-  version         Int             @default(1)
+  parentId String?
+  parent   Schedule?  @relation("ScheduleVersions", fields: [parentId], references: [id])
+  versions Schedule[] @relation("ScheduleVersions")
+  version  Int        @default(1)
 
-  shifts          Shift[]
-  auditLogs       ScheduleAuditLog[]
+  shifts    Shift[]
+  auditLogs ScheduleAuditLog[]
 
-  publishedAt     DateTime?
-  publishedBy     String?
+  publishedAt DateTime?
+  publishedBy String?
 
-  createdAt       DateTime        @default(now())
-  updatedAt       DateTime        @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@index([companyId])
   @@index([startDate, endDate])
@@ -233,56 +272,56 @@ model Schedule {
 }
 
 model Shift {
-  id                String          @id @default(uuid())
+  id String @id @default(uuid())
 
-  scheduleId        String
-  schedule          Schedule        @relation(fields: [scheduleId], references: [id], onDelete: Cascade)
+  scheduleId String
+  schedule   Schedule @relation(fields: [scheduleId], references: [id], onDelete: Cascade)
 
-  date              DateTime
-  startTime         String          // "09:00"
-  endTime           String          // "17:00"
+  date      DateTime
+  startTime String // "09:00"
+  endTime   String // "17:00"
 
-  positionId        String?
-  requiredRole      String?         // "cameriere", "cuoco"
+  positionId   String?
+  requiredRole String? // "cameriere", "cuoco"
 
-  minStaff          Int             @default(1)
-  maxStaff          Int?
+  minStaff Int  @default(1)
+  maxStaff Int?
 
   // AI flags
-  isAiGenerated     Boolean         @default(false)
-  isManuallyEdited  Boolean         @default(false)
-  aiConfidence      Float?          // 0-1
-  aiReasoning       String?         @db.Text
+  isAiGenerated    Boolean @default(false)
+  isManuallyEdited Boolean @default(false)
+  aiConfidence     Float? // 0-1
+  aiReasoning      String? @db.Text
 
   // Break requirements
-  breakMinutes      Int?
+  breakMinutes Int?
 
-  assignments       ShiftAssignment[]
+  assignments ShiftAssignment[]
 
-  createdAt         DateTime        @default(now())
-  updatedAt         DateTime        @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@index([scheduleId])
   @@index([date])
 }
 
 model ShiftAssignment {
-  id              String    @id @default(uuid())
+  id String @id @default(uuid())
 
-  shiftId         String
-  shift           Shift     @relation(fields: [shiftId], references: [id], onDelete: Cascade)
+  shiftId String
+  shift   Shift  @relation(fields: [shiftId], references: [id], onDelete: Cascade)
 
-  userId          String
-  user            User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  assignmentType  String    // "AI_SUGGESTED", "MANUAL_OVERRIDE", "EMPLOYEE_REQUESTED"
-  confidenceScore Float?    // 0-1 for AI assignments
+  assignmentType  String // "AI_SUGGESTED", "MANUAL_OVERRIDE", "EMPLOYEE_REQUESTED"
+  confidenceScore Float? // 0-1 for AI assignments
 
-  isConfirmed     Boolean   @default(false)
-  confirmedAt     DateTime?
+  isConfirmed Boolean   @default(false)
+  confirmedAt DateTime?
 
-  createdAt       DateTime  @default(now())
-  updatedAt       DateTime  @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@unique([shiftId, userId])
   @@index([userId])
@@ -293,28 +332,28 @@ model ShiftAssignment {
 // ============================================
 
 model Request {
-  id                String          @id @default(uuid())
+  id String @id @default(uuid())
 
-  userId            String
-  user              User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  type              RequestType
-  status            RequestStatus   @default(PENDING)
+  type   RequestType
+  status RequestStatus @default(PENDING)
 
-  startDate         DateTime
-  endDate           DateTime
+  startDate DateTime
+  endDate   DateTime
 
-  hours             Float?          // Per permessi in ore
-  notes             String?         @db.Text
+  hours Float? // Per permessi in ore
+  notes String? @db.Text
 
   // Admin review
-  reviewedBy        String?
-  reviewedAt        DateTime?
-  adminNotes        String?         @db.Text
-  rejectedReason    String?         @db.Text
+  reviewedBy     String?
+  reviewedAt     DateTime?
+  adminNotes     String?   @db.Text
+  rejectedReason String?   @db.Text
 
-  createdAt         DateTime        @default(now())
-  updatedAt         DateTime        @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@index([userId])
   @@index([status])
@@ -322,24 +361,24 @@ model Request {
 }
 
 model TimeOffPolicy {
-  id                    String      @id @default(uuid())
+  id String @id @default(uuid())
 
-  companyId             String
-  company               Company     @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  companyId String
+  company   Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
 
-  year                  Int
+  year Int
 
   // Default quotas
-  vacationDays          Int         @default(22)
-  permissionHours       Int         @default(72)
-  rolHours              Int         @default(0)
+  vacationDays    Int @default(22)
+  permissionHours Int @default(72)
+  rolHours        Int @default(0)
 
   // Weekly day off config
-  weeklyDaysOffMin      Int         @default(2)
-  weeklyDaysOffMax      Int         @default(3)
+  weeklyDaysOffMin Int @default(2)
+  weeklyDaysOffMax Int @default(3)
 
-  createdAt             DateTime    @default(now())
-  updatedAt             DateTime    @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@unique([companyId, year])
   @@index([companyId])
@@ -350,46 +389,46 @@ model TimeOffPolicy {
 // ============================================
 
 model Constraint {
-  id          String      @id @default(uuid())
+  id String @id @default(uuid())
 
-  companyId   String
-  company     Company     @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  companyId String
+  company   Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
 
-  type        String      // "HARD", "SOFT"
-  category    String      // "AVAILABILITY", "SKILLS", "WORKLOAD", "LEGAL"
+  type        String // "HARD", "SOFT"
+  category    String // "AVAILABILITY", "SKILLS", "WORKLOAD", "LEGAL"
   name        String
-  description String?     @db.Text
+  description String? @db.Text
 
   // Flexible constraint definition (JSONB)
-  rules       Json
+  rules Json
 
-  priority    Int         @default(1)
-  isActive    Boolean     @default(true)
+  priority Int     @default(1)
+  isActive Boolean @default(true)
 
-  createdAt   DateTime    @default(now())
-  updatedAt   DateTime    @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@index([companyId])
   @@index([category])
 }
 
 model BlackoutPeriod {
-  id                String      @id @default(uuid())
+  id String @id @default(uuid())
 
-  companyId         String
-  company           Company     @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  companyId String
+  company   Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
 
-  name              String      // "Festività Natalizie", "Alta Stagione"
-  description       String?     @db.Text
+  name        String // "Festività Natalizie", "Alta Stagione"
+  description String? @db.Text
 
-  startDate         DateTime
-  endDate           DateTime
+  startDate DateTime
+  endDate   DateTime
 
-  blockAllRequests  Boolean     @default(false)
-  maxRequestsAllowed Int?       // Se non blockAll, limite richieste
+  blockAllRequests   Boolean @default(false)
+  maxRequestsAllowed Int? // Se non blockAll, limite richieste
 
-  createdAt         DateTime    @default(now())
-  updatedAt         DateTime    @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@index([companyId])
   @@index([startDate, endDate])
@@ -400,25 +439,25 @@ model BlackoutPeriod {
 // ============================================
 
 model OnboardingSession {
-  id              String      @id @default(uuid())
+  id String @id @default(uuid())
 
-  companyId       String
-  company         Company     @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  companyId String
+  company   Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
 
-  mode            OnboardingMode
+  mode OnboardingMode
 
   // AI conversation log
-  conversationLog Json[]      // Array di {role: "user"|"assistant", content: string}
-  extractedData   Json?       // Vincoli estratti progressivamente
+  conversationLog Json[] // Array di {role: "user"|"assistant", content: string}
+  extractedData   Json? // Vincoli estratti progressivamente
 
-  currentStep     Int         @default(0)
-  totalSteps      Int         @default(5)
+  currentStep Int @default(0)
+  totalSteps  Int @default(5)
 
-  isCompleted     Boolean     @default(false)
-  completedAt     DateTime?
+  isCompleted Boolean   @default(false)
+  completedAt DateTime?
 
-  createdAt       DateTime    @default(now())
-  updatedAt       DateTime    @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@index([companyId])
 }
@@ -428,99 +467,99 @@ model OnboardingSession {
 // ============================================
 
 model LlmProvider {
-  id          String      @id @default(uuid())
-  name        String      @unique // "xai", "openai", "anthropic"
-  displayName String      // "xAI (Grok)", "OpenAI", "Anthropic"
+  id          String @id @default(uuid())
+  name        String @unique // "xai", "openai", "anthropic"
+  displayName String // "xAI (Grok)", "OpenAI", "Anthropic"
 
-  isActive    Boolean     @default(true)
-  apiKey      String?     @db.Text // Encrypted
+  isActive Boolean @default(true)
+  apiKey   String? @db.Text // Encrypted
 
-  models      LlmModel[]
+  models LlmModel[]
 
-  createdAt   DateTime    @default(now())
-  updatedAt   DateTime    @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model LlmModel {
-  id              String      @id @default(uuid())
+  id String @id @default(uuid())
 
-  providerId      String
-  provider        LlmProvider @relation(fields: [providerId], references: [id], onDelete: Cascade)
+  providerId String
+  provider   LlmProvider @relation(fields: [providerId], references: [id], onDelete: Cascade)
 
-  modelId         String      // "grok-beta", "gpt-4o", "claude-sonnet-4-5"
-  displayName     String
+  modelId     String // "grok-beta", "gpt-4o", "claude-sonnet-4-5"
+  displayName String
 
   // Pricing per 1M tokens
   inputCostPer1M  Float
   outputCostPer1M Float
 
   // Capabilities
-  supportsStreaming   Boolean @default(true)
-  supportsStructured  Boolean @default(true)
+  supportsStreaming  Boolean @default(true)
+  supportsStructured Boolean @default(true)
   maxTokens          Int     @default(4096)
 
-  isActive        Boolean @default(true)
-  priority        Int     @default(0)
+  isActive Boolean @default(true)
+  priority Int     @default(0)
 
-  usageLogs       AiGenerationLog[]
+  usageLogs AiGenerationLog[]
 
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@unique([providerId, modelId])
 }
 
 model LlmConfiguration {
-  id                    String   @id @default(uuid())
+  id String @id @default(uuid())
 
-  companyId             String?  @unique // Null = global default
-  company               Company? @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  companyId String?  @unique // Null = global default
+  company   Company? @relation(fields: [companyId], references: [id], onDelete: Cascade)
 
   // Model assignments per use case
-  onboardingModelId     String
-  constraintModelId     String
-  explanationModelId    String
-  validationModelId     String
+  onboardingModelId  String
+  constraintModelId  String
+  explanationModelId String
+  validationModelId  String
 
   // Fallback
-  enableFallback        Boolean @default(true)
-  fallbackModelIds      String[]
+  enableFallback   Boolean  @default(true)
+  fallbackModelIds String[]
 
   // Cost controls
-  dailyBudgetLimit      Float?
-  monthlyBudgetLimit    Float?
-  alertThreshold        Float   @default(0.8)
+  dailyBudgetLimit   Float?
+  monthlyBudgetLimit Float?
+  alertThreshold     Float  @default(0.8)
 
   // Performance
-  maxRetries            Int     @default(3)
-  timeoutSeconds        Int     @default(30)
-  enableCaching         Boolean @default(true)
-  cacheRetentionHours   Int     @default(24)
+  maxRetries          Int     @default(3)
+  timeoutSeconds      Int     @default(30)
+  enableCaching       Boolean @default(true)
+  cacheRetentionHours Int     @default(24)
 
-  createdAt             DateTime @default(now())
-  updatedAt             DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model AiGenerationLog {
-  id              String    @id @default(uuid())
+  id String @id @default(uuid())
 
-  companyId       String
-  modelId         String
-  model           LlmModel  @relation(fields: [modelId], references: [id])
+  companyId String
+  modelId   String
+  model     LlmModel @relation(fields: [modelId], references: [id])
 
-  useCase         String    // "onboarding", "constraint_extraction"
+  useCase String // "onboarding", "constraint_extraction"
 
-  inputTokens     Int
-  outputTokens    Int
-  totalCost       Float     // In €
+  inputTokens  Int
+  outputTokens Int
+  totalCost    Float // In €
 
-  latencyMs       Int
-  wasSuccessful   Boolean
-  errorMessage    String?   @db.Text
+  latencyMs     Int
+  wasSuccessful Boolean
+  errorMessage  String? @db.Text
 
-  metadata        Json?
+  metadata Json?
 
-  createdAt       DateTime  @default(now())
+  createdAt DateTime @default(now())
 
   @@index([companyId, createdAt])
   @@index([modelId, createdAt])
@@ -531,21 +570,21 @@ model AiGenerationLog {
 // ============================================
 
 model ScheduleAuditLog {
-  id              String      @id @default(uuid())
+  id String @id @default(uuid())
 
-  scheduleId      String
-  schedule        Schedule    @relation(fields: [scheduleId], references: [id], onDelete: Cascade)
+  scheduleId String
+  schedule   Schedule @relation(fields: [scheduleId], references: [id], onDelete: Cascade)
 
-  userId          String
-  action          String      // "CREATED", "UPDATED", "PUBLISHED", "SHIFT_ADDED"
+  userId String
+  action String // "CREATED", "UPDATED", "PUBLISHED", "SHIFT_ADDED"
 
-  changesBefore   Json?
-  changesAfter    Json?
+  changesBefore Json?
+  changesAfter  Json?
 
-  ipAddress       String?
-  userAgent       String?     @db.Text
+  ipAddress String?
+  userAgent String? @db.Text
 
-  createdAt       DateTime    @default(now())
+  createdAt DateTime @default(now())
 
   @@index([scheduleId])
   @@index([userId])
@@ -553,20 +592,188 @@ model ScheduleAuditLog {
 }
 
 model AuditLog {
-  id         String   @id @default(uuid())
+  id String @id @default(uuid())
 
   userId     String?
-  action     String   // "REQUEST_CREATED", "REQUEST_APPROVED"
-  entityType String   // "Request", "User"
+  action     String // "REQUEST_CREATED", "REQUEST_APPROVED"
+  entityType String // "Request", "User"
   entityId   String
 
-  changes    Json?
-  ipAddress  String?
-  userAgent  String?
+  changes   Json?
+  ipAddress String?
+  userAgent String?
 
-  createdAt  DateTime @default(now())
+  createdAt DateTime @default(now())
 
   @@index([userId])
   @@index([entityType, entityId])
   @@index([createdAt])
+}
+
+// ============================================
+// AI SCHEDULING SYSTEM
+// ============================================
+
+model AISchedulingConfig {
+  id String @id @default(uuid())
+
+  companyId String  @unique
+  company   Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  // Modalità AI
+  mode      AIModeType @default(SUGGESTION)
+  isEnabled Boolean    @default(true)
+
+  // Parametri generazione
+  defaultLookaheadDays   Int     @default(7) // Giorni in avanti da generare
+  minConfidenceThreshold Float   @default(0.7) // Confidence minima per auto-publish
+  respectPreferences     Boolean @default(true)
+  optimizeForFairness    Boolean @default(true) // Distribuzione equa ore
+
+  // Notifiche
+  notifyOnGeneration Boolean @default(true)
+  notifyOnConflict   Boolean @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model CriticalPeriod {
+  id String @id @default(uuid())
+
+  companyId String
+  company   Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  name        String // "Scarichi Merce", "Black Friday", "Periodo Natalizio"
+  description String? @db.Text
+
+  startDate DateTime
+  endDate   DateTime
+
+  // Fasce orarie specifiche (opzionale) - se null, tutto il giorno
+  startTime String? // "06:00"
+  endTime   String? // "10:00"
+
+  // Intensità: moltiplicatore staff richiesto (1.5 = +50% personale)
+  staffMultiplier Float @default(1.5)
+
+  // Origine del periodo critico
+  source       CriticalPeriodSource @default(MANUAL)
+  aiConfidence Float? // Confidence AI se source != MANUAL
+  aiReasoning  String?              @db.Text
+
+  // Se true, blocca richieste preferenze in questo periodo
+  blockPreferences Boolean @default(true)
+
+  // Posizioni/Nuclei specifici o tutti (array vuoto = tutti)
+  affectedPositionIds String[]
+
+  // Ricorrenza (es. ogni martedì e giovedì per scarichi)
+  isRecurring      Boolean @default(false)
+  recurringPattern Json? // {dayOfWeek: [2,4], until: "2025-12-31"}
+
+  isActive Boolean @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([companyId, startDate, endDate])
+  @@index([isActive])
+}
+
+model EmployeePreference {
+  id String @id @default(uuid())
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Riferimento temporale
+  date      DateTime
+  startTime String? // "09:00" - se null, tutto il giorno
+  endTime   String? // "17:00"
+
+  preferenceType PreferenceType @default(AVAILABLE)
+
+  // Validazione automatica
+  validationStatus PreferenceValidationStatus @default(PENDING)
+  validatedAt      DateTime?
+  validationReason String?                    @db.Text
+
+  // Note collaboratore
+  notes String? @db.Text
+
+  // Ricorrenza (opzionale)
+  isRecurring      Boolean @default(false)
+  recurringPattern Json? // {dayOfWeek: [1,3,5], until: "2025-12-31"}
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([userId, date, startTime])
+  @@index([userId, date])
+  @@index([validationStatus])
+}
+
+model AIGenerationRun {
+  id String @id @default(uuid())
+
+  companyId String
+  company   Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  scheduleId String?
+
+  // Periodo generato
+  startDate DateTime
+  endDate   DateTime
+
+  // Metriche
+  shiftsGenerated      Int @default(0)
+  assignmentsGenerated Int @default(0)
+  constraintsViolated  Int @default(0)
+  conflictsResolved    Int @default(0)
+
+  // Performance
+  durationMs Int
+  tokensUsed Int?
+  modelUsed  String
+
+  // Output
+  overallConfidence Float
+  reasoning         String? @db.Text
+  warnings          Json? // Array di warning/suggerimenti
+
+  // Status
+  status     String    @default("DRAFT") // "DRAFT", "APPROVED", "PUBLISHED", "REJECTED"
+  approvedBy String?
+  approvedAt DateTime?
+
+  createdAt DateTime @default(now())
+
+  @@index([companyId, createdAt])
+  @@index([status])
+}
+
+model ConstraintTemplate {
+  id String @id @default(uuid())
+
+  // Template predefiniti (legali italiani, best practices)
+  name        String
+  category    String // "LEGAL_IT", "BEST_PRACTICE", "HEALTH", "FAIRNESS"
+  description String @db.Text
+
+  // Regola in formato JSON strutturato
+  ruleDefinition Json
+  // Esempio: {
+  //   "type": "MIN_REST_BETWEEN_SHIFTS",
+  //   "value": 11,
+  //   "unit": "hours",
+  //   "severity": "HARD"
+  // }
+
+  isDefault   Boolean @default(false)
+  countryCode String? // "IT", "EU"
+
+  createdAt DateTime @default(now())
+
+  @@unique([name, category])
 }

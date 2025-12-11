@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/server';
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
+import { getUserAzienda } from '@/lib/auth/get-user-azienda';
 
 // Schema validazione per creazione collaboratore
 const CreateCollaboratoreSchema = z.object({
@@ -30,14 +31,10 @@ export async function GET() {
         }
 
         // Ottieni azienda dell'utente
-        const { data: azienda, error: aziendaError } = await supabase
-            .from('Azienda')
-            .select('id')
-            .eq('super_admin_email', user.email)
-            .single();
+        const { azienda, error: aziendaError } = await getUserAzienda(supabase, user.email!);
 
         if (aziendaError || !azienda) {
-            return NextResponse.json({ error: 'Azienda non trovata' }, { status: 404 });
+            return NextResponse.json({ error: aziendaError || 'Azienda non trovata' }, { status: 404 });
         }
 
         // Ottieni collaboratori con nuclei
@@ -88,14 +85,10 @@ export async function POST(req: NextRequest) {
         }
 
         // Ottieni azienda dell'utente
-        const { data: azienda, error: aziendaError } = await supabase
-            .from('Azienda')
-            .select('id')
-            .eq('super_admin_email', user.email)
-            .single();
+        const { azienda, error: aziendaError } = await getUserAzienda(supabase, user.email!);
 
         if (aziendaError || !azienda) {
-            return NextResponse.json({ error: 'Azienda non trovata' }, { status: 404 });
+            return NextResponse.json({ error: aziendaError || 'Azienda non trovata' }, { status: 404 });
         }
 
         // Valida dati in input

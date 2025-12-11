@@ -8,6 +8,7 @@ import { createClient } from '@/lib/supabase/server';
  */
 
 const ConfigSchema = z.object({
+  planningChatModelId: z.string(),
   onboardingModelId: z.string(),
   constraintModelId: z.string(),
   explanationModelId: z.string(),
@@ -49,6 +50,7 @@ export async function GET() {
 
     // Default config if not found
     const finalConfig = config || {
+      planningChatModelId: 'x-ai/grok-4.1-fast',
       onboardingModelId: 'x-ai/grok-4-fast',
       constraintModelId: 'x-ai/grok-4-fast',
       explanationModelId: 'x-ai/grok-4-fast',
@@ -62,6 +64,7 @@ export async function GET() {
       success: true,
       models: models || [],
       config: {
+        planningChatModelId: finalConfig.planningChatModelId || 'x-ai/grok-4.1-fast',
         onboardingModelId: finalConfig.onboardingModelId,
         constraintModelId: finalConfig.constraintModelId,
         explanationModelId: finalConfig.explanationModelId,

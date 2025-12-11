@@ -29,6 +29,7 @@ interface LlmModel {
 }
 
 interface LlmConfig {
+  planningChatModelId: string;
   onboardingModelId: string;
   constraintModelId: string;
   explanationModelId: string;
@@ -39,6 +40,12 @@ interface LlmConfig {
 }
 
 const USE_CASES = [
+  {
+    id: 'planningChatModelId',
+    label: 'Chat Pianificazione Turni',
+    description: 'Chat AI per pianificare turni e gestire criticità',
+    icon: '🗓️',
+  },
   {
     id: 'onboardingModelId',
     label: 'Onboarding Conversazionale',
@@ -67,6 +74,7 @@ const USE_CASES = [
 
 // Modelli consigliati per caso d'uso
 const RECOMMENDED_MODELS = {
+  planningChatModelId: ['x-ai/grok-4.1-fast', 'openai/gpt-4o', 'anthropic/claude-3.5-sonnet'],
   onboardingModelId: ['x-ai/grok-4-fast', 'anthropic/claude-3.5-sonnet', 'openai/gpt-4o'],
   constraintModelId: ['anthropic/claude-3.5-sonnet', 'openai/gpt-4o', 'x-ai/grok-4-fast'],
   explanationModelId: ['openai/gpt-4o-mini', 'anthropic/claude-3-haiku', 'x-ai/grok-4-fast'],
@@ -79,6 +87,7 @@ export function LlmConfigForm() {
   const [initialLoading, setInitialLoading] = useState(true);
   const [models, setModels] = useState<LlmModel[]>([]);
   const [config, setConfig] = useState<LlmConfig>({
+    planningChatModelId: 'x-ai/grok-4.1-fast',
     onboardingModelId: 'x-ai/grok-4-fast',
     constraintModelId: 'x-ai/grok-4-fast',
     explanationModelId: 'x-ai/grok-4-fast',
