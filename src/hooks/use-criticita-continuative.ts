@@ -70,8 +70,13 @@ async function fetchCriticitaContinuative(
   const res = await fetch(url);
 
   if (!res.ok) {
-    const error = await res.json();
-    throw new Error(error.error || 'Errore nel recupero delle criticità continuative');
+    const contentType = res.headers.get('content-type');
+    if (contentType && contentType.includes('application/json')) {
+      const error = await res.json();
+      throw new Error(error.error || 'Errore nel recupero delle criticità continuative');
+    } else {
+      throw new Error(`Errore HTTP ${res.status}: ${res.statusText || 'Errore sconosciuto'}`);
+    }
   }
 
   const { data } = await res.json();
@@ -82,8 +87,13 @@ async function fetchCriticitaContinuativa(id: string): Promise<CriticitaContinua
   const res = await fetch(`/api/criticita-continuative/${id}`);
 
   if (!res.ok) {
-    const error = await res.json();
-    throw new Error(error.error || 'Errore nel recupero della criticità');
+    const contentType = res.headers.get('content-type');
+    if (contentType && contentType.includes('application/json')) {
+      const error = await res.json();
+      throw new Error(error.error || 'Errore nel recupero della criticità');
+    } else {
+      throw new Error(`Errore HTTP ${res.status}: ${res.statusText || 'Errore sconosciuto'}`);
+    }
   }
 
   const { data } = await res.json();
@@ -100,8 +110,13 @@ async function createCriticitaContinuativa(
   });
 
   if (!res.ok) {
-    const error = await res.json();
-    throw new Error(error.error || 'Errore nella creazione della criticità');
+    const contentType = res.headers.get('content-type');
+    if (contentType && contentType.includes('application/json')) {
+      const error = await res.json();
+      throw new Error(error.error || 'Errore nella creazione della criticità');
+    } else {
+      throw new Error(`Errore HTTP ${res.status}: ${res.statusText || 'Errore sconosciuto'}`);
+    }
   }
 
   const { data } = await res.json();
@@ -119,8 +134,13 @@ async function updateCriticitaContinuativa({
   });
 
   if (!res.ok) {
-    const error = await res.json();
-    throw new Error(error.error || "Errore nell'aggiornamento della criticità");
+    const contentType = res.headers.get('content-type');
+    if (contentType && contentType.includes('application/json')) {
+      const error = await res.json();
+      throw new Error(error.error || "Errore nell'aggiornamento della criticità");
+    } else {
+      throw new Error(`Errore HTTP ${res.status}: ${res.statusText || 'Errore sconosciuto'}`);
+    }
   }
 
   const { data } = await res.json();
@@ -133,8 +153,14 @@ async function deleteCriticitaContinuativa(id: string): Promise<void> {
   });
 
   if (!res.ok) {
-    const error = await res.json();
-    throw new Error(error.error || "Errore nell'eliminazione della criticità");
+    // Handle non-JSON responses (e.g., HTML error pages)
+    const contentType = res.headers.get('content-type');
+    if (contentType && contentType.includes('application/json')) {
+      const error = await res.json();
+      throw new Error(error.error || "Errore nell'eliminazione della criticità");
+    } else {
+      throw new Error(`Errore HTTP ${res.status}: ${res.statusText || 'Errore sconosciuto'}`);
+    }
   }
 }
 
