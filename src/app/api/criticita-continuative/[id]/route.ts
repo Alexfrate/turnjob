@@ -9,6 +9,8 @@
 import { createClient } from '@/lib/supabase/server';
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
+import { getUserAzienda } from '@/lib/auth/get-user-azienda';
+import { validateDayForScheduling, getDayName } from '@/lib/utils/closed-days';
 
 const GiorniSettimana = {
   1: 'Lunedì',
@@ -52,15 +54,11 @@ async function verifyCriticitaOwnership(
   criticitaId: string,
   userEmail: string
 ) {
-  // Ottieni azienda dell'utente
-  const { data: azienda } = await supabase
-    .from('Azienda')
-    .select('id')
-    .eq('super_admin_email', userEmail)
-    .single();
+  // Ottieni azienda dell'utente (supporta super_admin E amministratori)
+  const { azienda, error: aziendaError } = await getUserAzienda(supabase, userEmail);
 
-  if (!azienda) {
-    return { error: 'Azienda non trovata', status: 404 };
+  if (!azienda || aziendaError) {
+    return { error: aziendaError || 'Azienda non trovata', status: 404 };
   }
 
   // Verifica che la criticità appartenga all'azienda
@@ -151,6 +149,24 @@ export async function PUT(req: NextRequest, context: RouteContext) {
     if (oraInizio && oraFine && oraInizio >= oraFine) {
       return NextResponse.json(
         { error: "L'ora di inizio deve essere precedente all'ora di fine" },
+        { status: 400 }
+      );
+    }
+
+    // Validazione giorno: non permettere criticità per giorni di chiusura
+    const giornoSettimana = input.giorno_settimana ?? result.criticita.giorno_settimana;
+    const dayValidation = validateDayForScheduling(
+      giornoSettimana,
+      result.azienda.orario_apertura
+    );
+
+    if (!dayValidation.valid) {
+      return NextResponse.json(
+        {
+          error: `Impossibile creare criticità per ${getDayName(giornoSettimana)}`,
+          details: dayValidation.error,
+          code: 'CLOSED_DAY_VALIDATION',
+        },
         { status: 400 }
       );
     }

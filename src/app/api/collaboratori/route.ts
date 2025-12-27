@@ -17,6 +17,10 @@ const CreateCollaboratoreSchema = z.object({
     data_assunzione: z.string().optional(),
     note: z.string().optional(),
     nuclei_ids: z.array(z.string().uuid()).optional(),
+    // Configurazione riposi settimanali
+    tipo_riposo: z.enum(['giorni_interi', 'mezze_giornate', 'ore']).default('giorni_interi'),
+    riposi_settimanali_custom: z.number().int().min(0).max(7).optional().nullable(),
+    ore_riposo_settimanali: z.number().int().min(0).max(168).optional().nullable(),
 });
 
 // GET /api/collaboratori - Lista tutti i collaboratori dell'azienda

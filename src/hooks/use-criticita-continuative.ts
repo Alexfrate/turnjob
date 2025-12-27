@@ -144,7 +144,7 @@ export function useCriticitaContinuative(filters?: CriticitaContinuativaFilters)
   return useQuery({
     queryKey: ['criticita-continuative', filters],
     queryFn: () => fetchCriticitaContinuative(filters),
-    staleTime: 1000 * 60 * 5, // 5 minuti
+    staleTime: 0, // Refetch immediato dopo invalidazione
   });
 }
 
@@ -162,7 +162,11 @@ export function useCreateCriticitaContinuativa() {
   return useMutation({
     mutationFn: createCriticitaContinuativa,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['criticita-continuative'] });
+      // Forza refetch immediato di tutte le query criticità
+      queryClient.invalidateQueries({
+        queryKey: ['criticita-continuative'],
+        refetchType: 'all',
+      });
     },
   });
 }

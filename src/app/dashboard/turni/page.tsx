@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
   ChevronLeft,
   ChevronRight,
@@ -14,17 +15,25 @@ import {
   AlertTriangle,
   Plane,
   Package,
-  Flame
+  Flame,
+  List,
+  LayoutGrid,
+  Clock,
+  Loader2
 } from 'lucide-react';
 import { usePeriodiCriticiAttivi } from '@/hooks/use-ai-scheduling';
+import { useTurniCalendar, type Turno } from '@/hooks/use-turni';
+import { ShiftsListView, ShiftsCardView, ShiftsTimelineView } from '@/components/turni/views';
 import { cn } from '@/lib/utils';
 
-// Utility functions for week calculations
+// Utility functions for week calculations (settimana inizia da lunedì)
 function getWeekStart(date: Date): Date {
   const d = new Date(date);
   const day = d.getDay();
-  const diff = d.getDate() - day + (day === 0 ? -6 : 1);
-  d.setDate(diff);
+  // Se domenica (0), torna indietro di 6 giorni al lunedì
+  // Altrimenti torna indietro di (day-1) giorni
+  const diff = day === 0 ? -6 : 1 - day;
+  d.setDate(d.getDate() + diff);
   d.setHours(0, 0, 0, 0);
   return d;
 }
@@ -44,19 +53,39 @@ function formatFullDate(date: Date, locale: string = 'it-IT'): string {
   return date.toLocaleDateString(locale, { day: 'numeric', month: 'long', year: 'numeric' });
 }
 
+// Formatta data in formato YYYY-MM-DD senza conversione UTC (evita shift di timezone)
+function formatDateISO(date: Date): string {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+}
+
 export default function TurniPage() {
   const t = useTranslations();
   const router = useRouter();
   const [selectedDate, setSelectedDate] = useState(new Date());
+  const [viewMode, setViewMode] = useState<'list' | 'cards' | 'timeline'>('cards');
 
   const weekStart = useMemo(() => getWeekStart(selectedDate), [selectedDate]);
   const weekEnd = useMemo(() => getWeekEnd(selectedDate), [selectedDate]);
 
   // Fetch critical periods for selected week
   const { data: periodiCritici, isLoading: isLoadingPeriodi } = usePeriodiCriticiAttivi(
-    weekStart.toISOString().split('T')[0],
-    weekEnd.toISOString().split('T')[0]
+    formatDateISO(weekStart),
+    formatDateISO(weekEnd)
   );
+
+  // Fetch turni for selected week
+  const { turni, isLoading: isLoadingTurni } = useTurniCalendar(
+    formatDateISO(weekStart),
+    formatDateISO(weekEnd)
+  );
+
+  // Handler for viewing shift details
+  const handleViewShift = (turno: Turno) => {
+    router.push(`/dashboard/turni/manual?week=${formatDateISO(weekStart)}&turno=${turno.id}`);
+  };
 
   const navigateWeek = (direction: 'prev' | 'next') => {
     const newDate = new Date(selectedDate);
@@ -151,7 +180,7 @@ export default function TurniPage() {
             'cursor-pointer transition-all hover:shadow-lg hover:border-primary',
             'group relative overflow-hidden'
           )}
-          onClick={() => router.push(`/dashboard/turni/ai?week=${weekStart.toISOString().split('T')[0]}`)}
+          onClick={() => router.push(`/dashboard/turni/ai?week=${formatDateISO(weekStart)}`)}
         >
           <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 to-purple-500/5 opacity-0 group-hover:opacity-100 transition-opacity" />
           <CardHeader>
@@ -187,7 +216,7 @@ export default function TurniPage() {
             'cursor-pointer transition-all hover:shadow-lg hover:border-primary',
             'group relative overflow-hidden'
           )}
-          onClick={() => router.push(`/dashboard/turni/manual?week=${weekStart.toISOString().split('T')[0]}`)}
+          onClick={() => router.push(`/dashboard/turni/manual?week=${formatDateISO(weekStart)}`)}
         >
           <div className="absolute inset-0 bg-gradient-to-br from-green-500/5 to-emerald-500/5 opacity-0 group-hover:opacity-100 transition-opacity" />
           <CardHeader>
@@ -222,13 +251,15 @@ export default function TurniPage() {
       <div className="grid gap-4 md:grid-cols-4">
         <Card>
           <CardContent className="pt-4">
-            <div className="text-2xl font-bold">0</div>
+            <div className="text-2xl font-bold">{turni.length}</div>
             <p className="text-xs text-muted-foreground">Turni pianificati</p>
           </CardContent>
         </Card>
         <Card>
           <CardContent className="pt-4">
-            <div className="text-2xl font-bold">0</div>
+            <div className="text-2xl font-bold">
+              {turni.reduce((sum, t) => sum + (t.Assegnazione_Turno?.length || 0), 0)}
+            </div>
             <p className="text-xs text-muted-foreground">Collaboratori assegnati</p>
           </CardContent>
         </Card>
@@ -242,11 +273,89 @@ export default function TurniPage() {
         </Card>
         <Card>
           <CardContent className="pt-4">
-            <div className="text-2xl font-bold text-green-600">0%</div>
+            <div className={cn(
+              'text-2xl font-bold',
+              turni.length > 0 ? (
+                turni.reduce((sum, t) => sum + (t.Assegnazione_Turno?.length || 0), 0) >=
+                turni.reduce((sum, t) => sum + t.num_collaboratori_richiesti, 0)
+                  ? 'text-green-600'
+                  : 'text-orange-600'
+              ) : 'text-muted-foreground'
+            )}>
+              {turni.length > 0
+                ? `${Math.round(
+                    (turni.reduce((sum, t) => sum + (t.Assegnazione_Turno?.length || 0), 0) /
+                    turni.reduce((sum, t) => sum + t.num_collaboratori_richiesti, 0)) * 100
+                  )}%`
+                : '0%'}
+            </div>
             <p className="text-xs text-muted-foreground">Copertura</p>
           </CardContent>
         </Card>
       </div>
+
+      {/* Turni Definiti Section */}
+      <Card>
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <div>
+              <CardTitle className="flex items-center gap-2">
+                <CalendarDays className="h-5 w-5" />
+                Turni pianificati
+              </CardTitle>
+              <CardDescription>
+                Turni definiti per la settimana {formatDate(weekStart)} - {formatDate(weekEnd)}
+              </CardDescription>
+            </div>
+            <Tabs value={viewMode} onValueChange={(v) => setViewMode(v as typeof viewMode)}>
+              <TabsList>
+                <TabsTrigger value="list" className="gap-1">
+                  <List className="h-4 w-4" />
+                  <span className="hidden sm:inline">Lista</span>
+                </TabsTrigger>
+                <TabsTrigger value="cards" className="gap-1">
+                  <LayoutGrid className="h-4 w-4" />
+                  <span className="hidden sm:inline">Card</span>
+                </TabsTrigger>
+                <TabsTrigger value="timeline" className="gap-1">
+                  <Clock className="h-4 w-4" />
+                  <span className="hidden sm:inline">Timeline</span>
+                </TabsTrigger>
+              </TabsList>
+            </Tabs>
+          </div>
+        </CardHeader>
+        <CardContent>
+          {isLoadingTurni ? (
+            <div className="flex items-center justify-center py-12">
+              <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+            </div>
+          ) : (
+            <>
+              {viewMode === 'list' && (
+                <ShiftsListView
+                  turni={turni}
+                  onViewShift={handleViewShift}
+                />
+              )}
+              {viewMode === 'cards' && (
+                <ShiftsCardView
+                  turni={turni}
+                  weekStart={formatDateISO(weekStart)}
+                  onViewShift={handleViewShift}
+                />
+              )}
+              {viewMode === 'timeline' && (
+                <ShiftsTimelineView
+                  turni={turni}
+                  weekStart={formatDateISO(weekStart)}
+                  onViewShift={handleViewShift}
+                />
+              )}
+            </>
+          )}
+        </CardContent>
+      </Card>
     </div>
   );
 }

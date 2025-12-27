@@ -22,6 +22,8 @@ export type StatoRichiesta = 'in_attesa' | 'approvata' | 'rifiutata' | 'cancella
 
 export type TipoAssegnazione = 'manuale' | 'richiesta_collaboratore' | 'suggerita_ai';
 
+export type TipoRiposo = 'giorni_interi' | 'mezze_giornate' | 'ore';
+
 // ============================================
 // ORARIO TYPES
 // ============================================
@@ -102,6 +104,8 @@ export interface Collaboratore {
     ferie_annuali_custom?: number;
     permessi_annuali_custom?: number;
     riposi_settimanali_custom?: number;
+    tipo_riposo?: TipoRiposo;
+    ore_riposo_settimanali?: number;
     data_assunzione?: string;
     attivo: boolean;
     note?: string;

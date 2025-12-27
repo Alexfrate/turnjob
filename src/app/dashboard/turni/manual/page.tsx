@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useMemo, useState, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import Link from 'next/link';
@@ -13,6 +13,7 @@ import {
   Users,
   AlertTriangle,
   FileDown,
+  Loader2,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -23,12 +24,14 @@ import { useCollaboratori } from '@/hooks/use-collaboratori';
 import { useCriticitaContinuative } from '@/hooks/use-criticita-continuative';
 import { exportWeeklySchedulePDF } from '@/lib/export/pdf-schedule';
 
-// Utility functions for week calculations
+// Utility functions for week calculations (settimana inizia da lunedì)
 function getWeekStart(date: Date): Date {
   const d = new Date(date);
   const day = d.getDay();
-  const diff = d.getDate() - day + (day === 0 ? -6 : 1);
-  d.setDate(diff);
+  // Se domenica (0), torna indietro di 6 giorni al lunedì
+  // Altrimenti torna indietro di (day-1) giorni
+  const diff = day === 0 ? -6 : 1 - day;
+  d.setDate(d.getDate() + diff);
   d.setHours(0, 0, 0, 0);
   return d;
 }
@@ -44,14 +47,23 @@ function formatDate(date: Date, locale: string = 'it-IT'): string {
   return date.toLocaleDateString(locale, { day: 'numeric', month: 'short' });
 }
 
-export default function ManualTurniPage() {
+// Formatta data in formato YYYY-MM-DD senza conversione UTC (evita shift di timezone)
+function formatDateISO(date: Date): string {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+}
+
+function ManualTurniContent() {
   const t = useTranslations();
   const searchParams = useSearchParams();
   const weekParam = searchParams.get('week');
 
   const [selectedDate, setSelectedDate] = useState(() => {
     if (weekParam) {
-      const parsed = new Date(weekParam);
+      // Parse come locale (T12:00 evita problemi timezone)
+      const parsed = new Date(weekParam + 'T12:00:00');
       if (!isNaN(parsed.getTime())) {
         return parsed;
       }
@@ -62,8 +74,8 @@ export default function ManualTurniPage() {
   const weekStart = useMemo(() => getWeekStart(selectedDate), [selectedDate]);
   const weekEnd = useMemo(() => getWeekEnd(selectedDate), [selectedDate]);
 
-  const weekStartStr = weekStart.toISOString().split('T')[0];
-  const weekEndStr = weekEnd.toISOString().split('T')[0];
+  const weekStartStr = formatDateISO(weekStart);
+  const weekEndStr = formatDateISO(weekEnd);
 
   // Fetch data for stats
   const { data: turni } = useTurni({
@@ -211,5 +223,21 @@ export default function ManualTurniPage() {
       {/* Weekly Scheduler */}
       <WeeklyScheduler weekStart={weekStartStr} weekEnd={weekEndStr} />
     </div>
+  );
+}
+
+function LoadingFallback() {
+  return (
+    <div className="flex items-center justify-center h-64">
+      <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+    </div>
+  );
+}
+
+export default function ManualTurniPage() {
+  return (
+    <Suspense fallback={<LoadingFallback />}>
+      <ManualTurniContent />
+    </Suspense>
   );
 }

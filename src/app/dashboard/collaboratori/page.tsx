@@ -18,11 +18,13 @@ import {
     DialogTrigger,
 } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
-import { Plus, UserPlus, Pencil, Trash2, Loader2, Mail, Phone, Clock, Upload, Eye } from 'lucide-react';
+import { Plus, UserPlus, Pencil, Trash2, Loader2, Mail, Phone, Clock, Upload, Eye, Coffee, BedDouble, SunMedium, Info } from 'lucide-react';
 import Link from 'next/link';
 import { ImportDialog } from '@/components/collaboratori/ImportDialog';
 import { useToast } from '@/hooks/use-toast';
 import type { TipoOreContratto, TipoContratto } from '@/types/database';
+
+type TipoRiposo = 'giorni_interi' | 'mezze_giornate' | 'ore';
 
 interface CollaboratoreForm {
     nome: string;
@@ -35,6 +37,10 @@ interface CollaboratoreForm {
     ore_max: number | undefined;
     tipo_contratto: TipoContratto;
     nuclei_ids: string[];
+    // Configurazione riposi avanzata
+    tipo_riposo: TipoRiposo;
+    riposi_settimanali_custom: number | undefined;
+    ore_riposo_settimanali: number | undefined;
 }
 
 const defaultForm: CollaboratoreForm = {
@@ -48,6 +54,10 @@ const defaultForm: CollaboratoreForm = {
     ore_max: undefined,
     tipo_contratto: 'full_time',
     nuclei_ids: [],
+    // Default: 2 giorni interi di riposo
+    tipo_riposo: 'giorni_interi',
+    riposi_settimanali_custom: 2,
+    ore_riposo_settimanali: undefined,
 };
 
 export default function CollaboratoriPage() {
@@ -92,6 +102,9 @@ export default function CollaboratoriPage() {
 
         setOriginalNucleiData(nucleiAttivi);
 
+        // Carica il tipo di riposo dal collaboratore
+        const tipoRiposo: TipoRiposo = (collaboratore.tipo_riposo as TipoRiposo) || 'giorni_interi';
+
         setForm({
             nome: collaboratore.nome,
             cognome: collaboratore.cognome,
@@ -103,6 +116,9 @@ export default function CollaboratoriPage() {
             ore_max: collaboratore.ore_max ?? undefined,
             tipo_contratto: collaboratore.tipo_contratto || 'full_time',
             nuclei_ids: nucleiAttivi.map((n: { nucleoId: string }) => n.nucleoId),
+            tipo_riposo: tipoRiposo,
+            riposi_settimanali_custom: collaboratore.riposi_settimanali_custom ?? 2,
+            ore_riposo_settimanali: collaboratore.ore_riposo_settimanali ?? undefined,
         });
         setEditingId(collaboratore.id);
         setIsDialogOpen(true);
@@ -131,6 +147,10 @@ export default function CollaboratoriPage() {
             ore_min: form.tipo_ore === 'flessibile' ? form.ore_min : undefined,
             ore_max: form.tipo_ore === 'flessibile' ? form.ore_max : undefined,
             tipo_contratto: form.tipo_contratto,
+            // Configurazione riposi
+            tipo_riposo: form.tipo_riposo,
+            riposi_settimanali_custom: form.tipo_riposo !== 'ore' ? form.riposi_settimanali_custom : undefined,
+            ore_riposo_settimanali: form.tipo_riposo === 'ore' ? form.ore_riposo_settimanali : undefined,
             attivo: true,
         };
 
@@ -201,8 +221,9 @@ export default function CollaboratoriPage() {
                         setIsDialogOpen(false);
                     },
                     onError: (error) => {
-                        console.error('Create error:', error);
-                        toast({ title: 'Errore', description: 'Impossibile creare', variant: 'destructive' });
+                        const errorMessage = error instanceof Error ? error.message : 'Errore sconosciuto';
+                        console.error('Create error:', errorMessage, error);
+                        toast({ title: 'Errore', description: errorMessage, variant: 'destructive' });
                     },
                 });
             }
@@ -280,139 +301,244 @@ export default function CollaboratoriPage() {
                             </Button>
                         </DialogTrigger>
 
-                        <DialogContent className="max-w-md">
+                        <DialogContent size="3xl">
                             <form onSubmit={handleSubmit}>
                                 <DialogHeader>
                                     <DialogTitle>
                                         {editingId ? 'Modifica Collaboratore' : 'Nuovo Collaboratore'}
                                     </DialogTitle>
                                     <DialogDescription>
-                                        {editingId ? 'Modifica i dati' : 'Aggiungi un nuovo collaboratore'}
+                                        {editingId ? 'Modifica i dati del collaboratore' : 'Inserisci i dati del nuovo collaboratore'}
                                     </DialogDescription>
                                 </DialogHeader>
 
-                                <div className="grid gap-4 py-4 max-h-96 overflow-y-auto">
-                                    <div className="grid grid-cols-2 gap-4">
-                                        <div className="grid gap-2">
-                                            <Label htmlFor="nome">Nome *</Label>
-                                            <Input
-                                                id="nome"
-                                                value={form.nome}
-                                                onChange={(e) => setForm({ ...form, nome: e.target.value })}
-                                            />
-                                        </div>
-                                        <div className="grid gap-2">
-                                            <Label htmlFor="cognome">Cognome *</Label>
-                                            <Input
-                                                id="cognome"
-                                                value={form.cognome}
-                                                onChange={(e) => setForm({ ...form, cognome: e.target.value })}
-                                            />
-                                        </div>
-                                    </div>
-
-                                    <div className="grid gap-2">
-                                        <Label htmlFor="email">Email *</Label>
-                                        <Input
-                                            id="email"
-                                            type="email"
-                                            value={form.email}
-                                            onChange={(e) => setForm({ ...form, email: e.target.value })}
-                                            disabled={!!editingId}
-                                        />
-                                    </div>
-
-                                    <div className="grid gap-2">
-                                        <Label htmlFor="telefono">Telefono</Label>
-                                        <Input
-                                            id="telefono"
-                                            value={form.telefono}
-                                            onChange={(e) => setForm({ ...form, telefono: e.target.value })}
-                                        />
-                                    </div>
-
-                                    <div className="grid gap-2">
-                                        <Label>Gestione Ore</Label>
-                                        <Select
-                                            value={form.tipo_ore}
-                                            onValueChange={(v) => setForm({ ...form, tipo_ore: v as TipoOreContratto })}
-                                        >
-                                            <SelectTrigger>
-                                                <SelectValue />
-                                            </SelectTrigger>
-                                            <SelectContent>
-                                                <SelectItem value="settimanale_fisso">Ore settimanali fisse</SelectItem>
-                                                <SelectItem value="mensile">Ore mensili</SelectItem>
-                                                <SelectItem value="flessibile">Ore flessibili (min/max)</SelectItem>
-                                            </SelectContent>
-                                        </Select>
-                                    </div>
-
-                                    {form.tipo_ore === 'settimanale_fisso' && (
-                                        <div className="grid gap-2">
-                                            <Label htmlFor="ore_sett">Ore settimanali</Label>
-                                            <Input
-                                                id="ore_sett"
-                                                type="number"
-                                                min={1}
-                                                max={60}
-                                                value={form.ore_settimanali || ''}
-                                                onChange={(e) => setForm({ ...form, ore_settimanali: parseInt(e.target.value) || undefined })}
-                                            />
-                                        </div>
-                                    )}
-
-                                    {form.tipo_ore === 'flessibile' && (
-                                        <div className="grid grid-cols-2 gap-4">
+                                <div className="grid gap-6 py-4 max-h-[70vh] overflow-y-auto pr-2">
+                                    {/* Sezione: Dati Personali */}
+                                    <div className="space-y-4">
+                                        <h3 className="text-sm font-semibold text-muted-foreground border-b pb-2">
+                                            Dati Personali
+                                        </h3>
+                                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                             <div className="grid gap-2">
-                                                <Label htmlFor="ore_min">Ore min</Label>
+                                                <Label htmlFor="nome">Nome *</Label>
                                                 <Input
-                                                    id="ore_min"
-                                                    type="number"
-                                                    min={1}
-                                                    value={form.ore_min || ''}
-                                                    onChange={(e) => setForm({ ...form, ore_min: parseInt(e.target.value) || undefined })}
+                                                    id="nome"
+                                                    placeholder="Mario"
+                                                    value={form.nome}
+                                                    onChange={(e) => setForm({ ...form, nome: e.target.value })}
                                                 />
                                             </div>
                                             <div className="grid gap-2">
-                                                <Label htmlFor="ore_max">Ore max</Label>
+                                                <Label htmlFor="cognome">Cognome *</Label>
                                                 <Input
-                                                    id="ore_max"
-                                                    type="number"
-                                                    min={1}
-                                                    value={form.ore_max || ''}
-                                                    onChange={(e) => setForm({ ...form, ore_max: parseInt(e.target.value) || undefined })}
+                                                    id="cognome"
+                                                    placeholder="Rossi"
+                                                    value={form.cognome}
+                                                    onChange={(e) => setForm({ ...form, cognome: e.target.value })}
                                                 />
                                             </div>
                                         </div>
-                                    )}
-
-                                    <div className="grid gap-2">
-                                        <Label>Contratto</Label>
-                                        <Select
-                                            value={form.tipo_contratto}
-                                            onValueChange={(v) => setForm({ ...form, tipo_contratto: v as TipoContratto })}
-                                        >
-                                            <SelectTrigger>
-                                                <SelectValue />
-                                            </SelectTrigger>
-                                            <SelectContent>
-                                                <SelectItem value="full_time">Full Time</SelectItem>
-                                                <SelectItem value="part_time">Part Time</SelectItem>
-                                                <SelectItem value="altro">Altro</SelectItem>
-                                            </SelectContent>
-                                        </Select>
+                                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                            <div className="grid gap-2">
+                                                <Label htmlFor="email">Email *</Label>
+                                                <Input
+                                                    id="email"
+                                                    type="email"
+                                                    placeholder="mario.rossi@email.com"
+                                                    value={form.email}
+                                                    onChange={(e) => setForm({ ...form, email: e.target.value })}
+                                                    disabled={!!editingId}
+                                                />
+                                            </div>
+                                            <div className="grid gap-2">
+                                                <Label htmlFor="telefono">Telefono</Label>
+                                                <Input
+                                                    id="telefono"
+                                                    placeholder="+39 333 1234567"
+                                                    value={form.telefono}
+                                                    onChange={(e) => setForm({ ...form, telefono: e.target.value })}
+                                                />
+                                            </div>
+                                        </div>
                                     </div>
 
+                                    {/* Sezione: Contratto e Ore */}
+                                    <div className="space-y-4">
+                                        <h3 className="text-sm font-semibold text-muted-foreground border-b pb-2">
+                                            Contratto e Ore Lavorative
+                                        </h3>
+                                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                            <div className="grid gap-2">
+                                                <Label>Tipo Contratto</Label>
+                                                <Select
+                                                    value={form.tipo_contratto}
+                                                    onValueChange={(v) => setForm({ ...form, tipo_contratto: v as TipoContratto })}
+                                                >
+                                                    <SelectTrigger>
+                                                        <SelectValue />
+                                                    </SelectTrigger>
+                                                    <SelectContent>
+                                                        <SelectItem value="full_time">Full Time</SelectItem>
+                                                        <SelectItem value="part_time">Part Time</SelectItem>
+                                                        <SelectItem value="altro">Altro</SelectItem>
+                                                    </SelectContent>
+                                                </Select>
+                                            </div>
+                                            <div className="grid gap-2">
+                                                <Label>Gestione Ore</Label>
+                                                <Select
+                                                    value={form.tipo_ore}
+                                                    onValueChange={(v) => setForm({ ...form, tipo_ore: v as TipoOreContratto })}
+                                                >
+                                                    <SelectTrigger>
+                                                        <SelectValue />
+                                                    </SelectTrigger>
+                                                    <SelectContent>
+                                                        <SelectItem value="settimanale_fisso">Ore settimanali fisse</SelectItem>
+                                                        <SelectItem value="mensile">Ore mensili</SelectItem>
+                                                        <SelectItem value="flessibile">Ore flessibili (min/max)</SelectItem>
+                                                    </SelectContent>
+                                                </Select>
+                                            </div>
+                                        </div>
+
+                                        {form.tipo_ore === 'settimanale_fisso' && (
+                                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                                <div className="grid gap-2">
+                                                    <Label htmlFor="ore_sett">Ore settimanali</Label>
+                                                    <Input
+                                                        id="ore_sett"
+                                                        type="number"
+                                                        min={1}
+                                                        max={60}
+                                                        value={form.ore_settimanali || ''}
+                                                        onChange={(e) => setForm({ ...form, ore_settimanali: parseInt(e.target.value) || undefined })}
+                                                    />
+                                                </div>
+                                            </div>
+                                        )}
+
+                                        {form.tipo_ore === 'flessibile' && (
+                                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                                <div className="grid gap-2">
+                                                    <Label htmlFor="ore_min">Ore minime/settimana</Label>
+                                                    <Input
+                                                        id="ore_min"
+                                                        type="number"
+                                                        min={1}
+                                                        value={form.ore_min || ''}
+                                                        onChange={(e) => setForm({ ...form, ore_min: parseInt(e.target.value) || undefined })}
+                                                    />
+                                                </div>
+                                                <div className="grid gap-2">
+                                                    <Label htmlFor="ore_max">Ore massime/settimana</Label>
+                                                    <Input
+                                                        id="ore_max"
+                                                        type="number"
+                                                        min={1}
+                                                        value={form.ore_max || ''}
+                                                        onChange={(e) => setForm({ ...form, ore_max: parseInt(e.target.value) || undefined })}
+                                                    />
+                                                </div>
+                                            </div>
+                                        )}
+                                    </div>
+
+                                    {/* Sezione: Riposi */}
+                                    <div className="space-y-4">
+                                        <h3 className="text-sm font-semibold text-muted-foreground border-b pb-2">
+                                            Configurazione Riposi Settimanali
+                                        </h3>
+                                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                            <div className="grid gap-2">
+                                                <Label>Tipo di riposo</Label>
+                                                <Select
+                                                    value={form.tipo_riposo}
+                                                    onValueChange={(v) => setForm({ ...form, tipo_riposo: v as TipoRiposo })}
+                                                >
+                                                    <SelectTrigger className="w-full">
+                                                        <SelectValue placeholder="Seleziona tipo" />
+                                                    </SelectTrigger>
+                                                    <SelectContent>
+                                                        <SelectItem value="giorni_interi">
+                                                            Giorni interi
+                                                        </SelectItem>
+                                                        <SelectItem value="mezze_giornate">
+                                                            Mezze giornate
+                                                        </SelectItem>
+                                                        <SelectItem value="ore">
+                                                            Ore di riposo
+                                                        </SelectItem>
+                                                    </SelectContent>
+                                                </Select>
+                                            </div>
+
+                                            {form.tipo_riposo === 'giorni_interi' && (
+                                                <div className="grid gap-2">
+                                                    <Label htmlFor="riposi_giorni">Giorni di riposo/settimana</Label>
+                                                    <Input
+                                                        id="riposi_giorni"
+                                                        type="number"
+                                                        min={0}
+                                                        max={7}
+                                                        value={form.riposi_settimanali_custom ?? ''}
+                                                        onChange={(e) => setForm({ ...form, riposi_settimanali_custom: parseInt(e.target.value) || undefined })}
+                                                    />
+                                                </div>
+                                            )}
+
+                                            {form.tipo_riposo === 'mezze_giornate' && (
+                                                <div className="grid gap-2">
+                                                    <Label htmlFor="riposi_mezze">Mezze giornate/settimana</Label>
+                                                    <Input
+                                                        id="riposi_mezze"
+                                                        type="number"
+                                                        min={0}
+                                                        max={14}
+                                                        value={form.riposi_settimanali_custom ?? ''}
+                                                        onChange={(e) => setForm({ ...form, riposi_settimanali_custom: parseInt(e.target.value) || undefined })}
+                                                    />
+                                                    <p className="text-xs text-muted-foreground">
+                                                        Mattina o pomeriggio liberi
+                                                    </p>
+                                                </div>
+                                            )}
+
+                                            {form.tipo_riposo === 'ore' && (
+                                                <div className="grid gap-2">
+                                                    <Label htmlFor="riposi_ore">Ore di riposo/settimana</Label>
+                                                    <Input
+                                                        id="riposi_ore"
+                                                        type="number"
+                                                        min={0}
+                                                        max={48}
+                                                        value={form.ore_riposo_settimanali ?? ''}
+                                                        onChange={(e) => setForm({ ...form, ore_riposo_settimanali: parseInt(e.target.value) || undefined })}
+                                                    />
+                                                    <p className="text-xs text-muted-foreground">
+                                                        Ore totali di riposo settimanale
+                                                    </p>
+                                                </div>
+                                            )}
+                                        </div>
+                                        <p className="text-xs text-muted-foreground bg-muted/50 p-2 rounded flex items-center gap-2">
+                                            <Info className="h-3.5 w-3.5 flex-shrink-0" />
+                                            I riposi verranno poi assegnati giorno per giorno nella sezione Turni AI
+                                        </p>
+                                    </div>
+
+                                    {/* Sezione: Nuclei/Mansioni */}
                                     {nuclei.length > 0 && (
-                                        <div className="grid gap-2">
-                                            <Label>Nuclei (mansioni)</Label>
+                                        <div className="space-y-4">
+                                            <h3 className="text-sm font-semibold text-muted-foreground border-b pb-2">
+                                                Nuclei / Mansioni
+                                            </h3>
                                             <div className="flex flex-wrap gap-2">
                                                 {nuclei.map((nucleo) => (
                                                     <Badge
                                                         key={nucleo.id}
                                                         variant={form.nuclei_ids.includes(nucleo.id) ? 'default' : 'outline'}
-                                                        className="cursor-pointer transition-all"
+                                                        className="cursor-pointer transition-all hover:scale-105 px-3 py-1.5 text-sm"
                                                         style={form.nuclei_ids.includes(nucleo.id) ? { backgroundColor: nucleo.colore } : {}}
                                                         onClick={() => {
                                                             if (form.nuclei_ids.includes(nucleo.id)) {
@@ -433,19 +559,19 @@ export default function CollaboratoriPage() {
                                                 ))}
                                             </div>
                                             <p className="text-xs text-muted-foreground">
-                                                Clicca per selezionare/deselezionare i nuclei
+                                                Clicca sui nuclei per assegnare le mansioni al collaboratore
                                             </p>
                                         </div>
                                     )}
                                 </div>
 
-                                <DialogFooter>
+                                <DialogFooter className="mt-4">
                                     <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)}>
                                         Annulla
                                     </Button>
                                     <Button type="submit" disabled={isCreating || isUpdating}>
                                         {(isCreating || isUpdating) && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                                        {editingId ? 'Salva' : 'Crea'}
+                                        {editingId ? 'Salva modifiche' : 'Crea collaboratore'}
                                     </Button>
                                 </DialogFooter>
                             </form>
@@ -517,6 +643,10 @@ export default function CollaboratoriPage() {
                                     <Badge variant="secondary" className="gap-1">
                                         <Clock className="h-3 w-3" />
                                         {renderOreInfo(collab)}
+                                    </Badge>
+                                    <Badge variant="outline" className="gap-1">
+                                        <Coffee className="h-3 w-3" />
+                                        {collab.riposi_settimanali_custom ?? 2} riposi/sett
                                     </Badge>
                                     {!collab.attivo && (
                                         <Badge variant="destructive">Disattivato</Badge>

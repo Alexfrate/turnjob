@@ -55,6 +55,9 @@ export interface CreateTurnoInput {
     num_collaboratori_richiesti?: number;
     note?: string;
     pubblicato?: boolean;
+    // Campi AI
+    suggerito_da_ai?: boolean;
+    ai_confidence?: number;
     assegnazioni?: {
         collaboratore_id: string;
         tipo?: 'manuale' | 'richiesta_collaboratore' | 'suggerita_ai';

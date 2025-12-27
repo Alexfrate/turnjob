@@ -39,7 +39,7 @@ export function Sidebar() {
         { name: "Collaboratori", href: "/dashboard/collaboratori", icon: Users },
         { name: "Richieste", href: "/dashboard/richieste", icon: FileText },
         { name: "Configurazione AI", href: "/ai-config", icon: Brain },
-        { name: "Impostazioni", href: "/dashboard/settings", icon: Settings },
+        { name: "Impostazioni", href: "/dashboard/impostazioni", icon: Settings },
     ];
 
     return (

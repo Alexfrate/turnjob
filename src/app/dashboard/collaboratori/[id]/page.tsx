@@ -19,6 +19,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { CollaboratorShiftsTab } from '@/components/collaboratori/CollaboratorShiftsTab';
+import { CollaboratorAvailabilityTab } from '@/components/collaboratori/CollaboratorAvailabilityTab';
 import { useCollaboratore } from '@/hooks/use-collaboratori';
 import { useTurni } from '@/hooks/use-turni';
 
@@ -212,9 +213,9 @@ export default function CollaboratoreDetailPage({ params }: Props) {
             <Calendar className="h-4 w-4" />
             Turni
           </TabsTrigger>
-          <TabsTrigger value="richieste" className="flex items-center gap-2">
+          <TabsTrigger value="disponibilita" className="flex items-center gap-2">
             <Clock className="h-4 w-4" />
-            Richieste
+            Disponibilità
           </TabsTrigger>
         </TabsList>
 
@@ -227,59 +228,11 @@ export default function CollaboratoreDetailPage({ params }: Props) {
           />
         </TabsContent>
 
-        <TabsContent value="richieste" className="mt-4">
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-base">Richieste ferie e permessi</CardTitle>
-              <CardDescription>
-                Storico delle richieste di ferie e permessi
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              {collaboratore.Richiesta && collaboratore.Richiesta.length > 0 ? (
-                <div className="space-y-3">
-                  {collaboratore.Richiesta.map(
-                    (richiesta: {
-                      id: string;
-                      tipo: string;
-                      data_inizio: string;
-                      data_fine: string;
-                      stato: string;
-                    }) => (
-                      <div
-                        key={richiesta.id}
-                        className="flex items-center justify-between p-3 border rounded-lg"
-                      >
-                        <div>
-                          <p className="font-medium capitalize">{richiesta.tipo}</p>
-                          <p className="text-sm text-muted-foreground">
-                            {new Date(richiesta.data_inizio).toLocaleDateString('it-IT')} -{' '}
-                            {new Date(richiesta.data_fine).toLocaleDateString('it-IT')}
-                          </p>
-                        </div>
-                        <Badge
-                          variant={
-                            richiesta.stato === 'approvata'
-                              ? 'default'
-                              : richiesta.stato === 'rifiutata'
-                              ? 'destructive'
-                              : 'secondary'
-                          }
-                        >
-                          {richiesta.stato}
-                        </Badge>
-                      </div>
-                    )
-                  )}
-                </div>
-              ) : (
-                <div className="text-center py-8 text-muted-foreground">
-                  <Clock className="h-8 w-8 mx-auto mb-2 opacity-50" />
-                  <p>Nessuna richiesta</p>
-                </div>
-              )}
-            </CardContent>
-          </Card>
+        <TabsContent value="disponibilita" className="mt-4">
+          <CollaboratorAvailabilityTab
+            collaboratoreId={id}
+            collaboratore={collaboratore as import('@/types/database').Collaboratore & { Appartenenza_Nucleo?: unknown[]; Richiesta?: unknown[] }}
+          />
         </TabsContent>
       </Tabs>
     </div>

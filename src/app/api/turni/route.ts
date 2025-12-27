@@ -12,6 +12,9 @@ const CreateTurnoSchema = z.object({
     num_collaboratori_richiesti: z.number().int().min(1).default(1),
     note: z.string().optional(),
     pubblicato: z.boolean().default(false),
+    // Campi AI
+    suggerito_da_ai: z.boolean().default(false),
+    ai_confidence: z.number().min(0).max(1).optional(),
     // Assegnazioni opzionali da creare insieme al turno
     assegnazioni: z.array(z.object({
         collaboratore_id: z.string().uuid(),

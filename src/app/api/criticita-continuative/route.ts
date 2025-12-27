@@ -9,6 +9,7 @@ import { createClient } from '@/lib/supabase/server';
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { getUserAzienda } from '@/lib/auth/get-user-azienda';
+import { validateDayForScheduling, getDayName } from '@/lib/utils/closed-days';
 
 // Giorni della settimana
 const GiorniSettimana = {
@@ -152,6 +153,23 @@ export async function POST(req: NextRequest) {
     if (input.ora_inizio && input.ora_fine && input.ora_inizio >= input.ora_fine) {
       return NextResponse.json(
         { error: "L'ora di inizio deve essere precedente all'ora di fine" },
+        { status: 400 }
+      );
+    }
+
+    // Validazione giorno: non permettere criticità per giorni di chiusura
+    const dayValidation = validateDayForScheduling(
+      input.giorno_settimana,
+      azienda.orario_apertura
+    );
+
+    if (!dayValidation.valid) {
+      return NextResponse.json(
+        {
+          error: `Impossibile creare criticità per ${getDayName(input.giorno_settimana)}`,
+          details: dayValidation.error,
+          code: 'CLOSED_DAY_VALIDATION',
+        },
         { status: 400 }
       );
     }

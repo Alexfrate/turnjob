@@ -12,7 +12,7 @@ import {
   type DragEndEvent,
   type DragOverEvent,
 } from '@dnd-kit/core';
-import { Plus, Clock, AlertTriangle, Sparkles, Users } from 'lucide-react';
+import { Plus, Clock, AlertTriangle, Sparkles, Users, RefreshCw, Zap } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -316,17 +316,19 @@ export function WeeklyScheduler({ weekStart, weekEnd }: WeeklySchedulerProps) {
                           {continuative.length > 0 && (
                             <Badge
                               variant="outline"
-                              className="text-[10px] px-1 py-0 text-blue-600"
+                              className="text-[10px] px-1 py-0 text-blue-600 flex items-center gap-0.5"
                             >
-                              {continuative.length} 🔄
+                              {continuative.length}
+                              <RefreshCw className="h-2.5 w-2.5" />
                             </Badge>
                           )}
                           {sporadiche.length > 0 && (
                             <Badge
                               variant="outline"
-                              className="text-[10px] px-1 py-0 text-orange-600"
+                              className="text-[10px] px-1 py-0 text-orange-600 flex items-center gap-0.5"
                             >
-                              {sporadiche.length} ⚡
+                              {sporadiche.length}
+                              <Zap className="h-2.5 w-2.5" />
                             </Badge>
                           )}
                         </div>

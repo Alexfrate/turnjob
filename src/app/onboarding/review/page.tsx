@@ -77,6 +77,11 @@ export default function OnboardingReviewPage() {
                 description: 'La tua azienda è stata configurata con successo.',
             });
 
+            // Imposta l'azienda appena creata come attiva prima del redirect
+            if (result.aziendaId) {
+                localStorage.setItem('turnjob_active_azienda_id', result.aziendaId);
+            }
+
             router.push(result.redirect || '/dashboard');
         } catch (error) {
             console.error('Save error:', error);

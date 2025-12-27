@@ -8,8 +8,17 @@ Restituisci SOLO un oggetto JSON valido (senza markdown, senza spiegazioni) con 
   "tipoAttivita": "string - Una tra: ristorazione, retail, hotel, ufficio, sanita, manifattura, altro",
   "orarioApertura": {
     "tipo": "fisso o variabile",
-    "inizio": "HH:MM (se fisso)",
-    "fine": "HH:MM (se fisso)"
+    // SE tipo = "fisso": tutti i giorni hanno lo stesso orario
+    "inizio": "HH:MM",
+    "fine": "HH:MM",
+    // SE tipo = "variabile": specifica ogni giorno con possibilità di chiusura
+    "lun": { "inizio": "HH:MM", "fine": "HH:MM", "chiuso": false },
+    "mar": { "inizio": "HH:MM", "fine": "HH:MM", "chiuso": false },
+    "mer": { "inizio": "HH:MM", "fine": "HH:MM", "chiuso": false },
+    "gio": { "inizio": "HH:MM", "fine": "HH:MM", "chiuso": false },
+    "ven": { "inizio": "HH:MM", "fine": "HH:MM", "chiuso": false },
+    "sab": { "inizio": "HH:MM", "fine": "HH:MM", "chiuso": false },
+    "dom": { "inizio": "HH:MM", "fine": "HH:MM", "chiuso": true } // chiuso = giorno di chiusura
   },
   "numeroCollaboratori": "number - Numero approssimativo di collaboratori",
   "nuclei": [
@@ -23,13 +32,18 @@ Restituisci SOLO un oggetto JSON valido (senza markdown, senza spiegazioni) con 
   }
 }
 
+IMPORTANTE per orarioApertura:
+- Se l'utente menziona giorni di CHIUSURA (es. "chiusi la domenica", "non apriamo il lunedì"), usa tipo "variabile" e imposta chiuso=true per quei giorni
+- Se l'utente dice "aperti 7 giorni su 7" o non menziona chiusure, usa tipo "fisso"
+- Per retail/supermercati: di solito domenica chiusa o orario ridotto
+
 Se un'informazione non è chiara, usa questi default:
 - tipoAttivita: "altro"
-- orarioApertura: { "tipo": "fisso", "inizio": "09:00", "fine": "18:00" }
+- orarioApertura: { "tipo": "variabile", "lun": {"inizio":"08:00","fine":"20:00"}, "mar": {"inizio":"08:00","fine":"20:00"}, "mer": {"inizio":"08:00","fine":"20:00"}, "gio": {"inizio":"08:00","fine":"20:00"}, "ven": {"inizio":"08:00","fine":"20:00"}, "sab": {"inizio":"08:00","fine":"20:00"}, "dom": {"inizio":"08:00","fine":"13:00","chiuso":true} }
 - numeroCollaboratori: 10
 - configurazioneOre: { "tipo": "settimanale_fisso", "valore": 40 }
 
-IMPORTANTE: Rispondi SOLO con il JSON, senza testo prima o dopo.
+IMPORTANTE: Rispondi SOLO con il JSON, senza testo prima o dopo. Non usare commenti nel JSON.
 
 Conversazione:
 `;

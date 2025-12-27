@@ -81,13 +81,15 @@ const SelectContent = React.forwardRef<
         className
       )}
       position={position}
+      avoidCollisions={true}
+      collisionPadding={16}
       {...props}
     >
       <SelectPrimitive.Viewport
         className={cn(
           "p-1.5 max-h-[300px] overflow-y-auto",
           position === "popper" &&
-            "w-full min-w-[var(--radix-select-trigger-width)]"
+            "w-full min-w-[var(--radix-select-trigger-width)] max-w-[calc(100vw-2rem)]"
         )}
       >
         {children}

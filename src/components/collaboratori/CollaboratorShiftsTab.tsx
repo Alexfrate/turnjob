@@ -17,12 +17,14 @@ interface CollaboratorShiftsTabProps {
   isLoading?: boolean;
 }
 
-// Helper functions
+// Helper functions (settimana inizia da lunedì)
 function getWeekStart(date: Date): Date {
   const d = new Date(date);
   const day = d.getDay();
-  const diff = d.getDate() - day + (day === 0 ? -6 : 1);
-  d.setDate(diff);
+  // Se domenica (0), torna indietro di 6 giorni al lunedì
+  // Altrimenti torna indietro di (day-1) giorni
+  const diff = day === 0 ? -6 : 1 - day;
+  d.setDate(d.getDate() + diff);
   d.setHours(0, 0, 0, 0);
   return d;
 }

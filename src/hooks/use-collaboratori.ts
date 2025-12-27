@@ -51,7 +51,7 @@ export function useCollaboratori() {
 
     const createMutation = useMutation({
         mutationFn: async (collaboratore: Omit<CollaboratoreInsert, 'azienda_id'>) => {
-            if (!aziendaId) throw new Error('No azienda');
+            if (!aziendaId) throw new Error('Nessuna azienda selezionata');
 
             const supabase = createClient();
 
@@ -64,7 +64,18 @@ export function useCollaboratori() {
                 .select()
                 .single();
 
-            if (error) throw error;
+            if (error) {
+                // Traduci errori comuni in italiano
+                let errorMessage = error.message || 'Errore sconosciuto';
+                if (error.code === '23505' || errorMessage.includes('duplicate key') || errorMessage.includes('unique constraint')) {
+                    if (errorMessage.includes('email')) {
+                        errorMessage = 'Esiste già un collaboratore con questa email in questa azienda';
+                    } else {
+                        errorMessage = 'Un record con questi dati esiste già';
+                    }
+                }
+                throw new Error(errorMessage);
+            }
             return data;
         },
         onSuccess: () => {
@@ -83,7 +94,17 @@ export function useCollaboratori() {
                 .select()
                 .single();
 
-            if (error) throw error;
+            if (error) {
+                let errorMessage = error.message || 'Errore sconosciuto';
+                if (error.code === '23505' || errorMessage.includes('duplicate key') || errorMessage.includes('unique constraint')) {
+                    if (errorMessage.includes('email')) {
+                        errorMessage = 'Esiste già un collaboratore con questa email in questa azienda';
+                    } else {
+                        errorMessage = 'Un record con questi dati esiste già';
+                    }
+                }
+                throw new Error(errorMessage);
+            }
             return data;
         },
         onSuccess: () => {
@@ -100,7 +121,9 @@ export function useCollaboratori() {
                 .delete()
                 .eq('id', id);
 
-            if (error) throw error;
+            if (error) {
+                throw new Error(error.message || 'Errore durante l\'eliminazione');
+            }
         },
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['collaboratori', aziendaId] });
@@ -128,7 +151,9 @@ export function useCollaboratori() {
                 .select()
                 .single();
 
-            if (error) throw error;
+            if (error) {
+                throw new Error(error.message || 'Errore durante l\'assegnazione al nucleo');
+            }
             return data;
         },
         onSuccess: () => {
@@ -150,7 +175,9 @@ export function useCollaboratori() {
                 })
                 .eq('id', appartenenzaId);
 
-            if (error) throw error;
+            if (error) {
+                throw new Error(error.message || 'Errore durante la rimozione dal nucleo');
+            }
         },
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['collaboratori', aziendaId] });

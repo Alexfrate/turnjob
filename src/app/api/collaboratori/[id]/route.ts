@@ -18,6 +18,8 @@ const UpdateCollaboratoreSchema = z.object({
     ferie_annuali_custom: z.number().int().optional().nullable(),
     permessi_annuali_custom: z.number().int().optional().nullable(),
     riposi_settimanali_custom: z.number().int().optional().nullable(),
+    tipo_riposo: z.enum(['giorni_interi', 'mezze_giornate', 'ore']).optional(),
+    ore_riposo_settimanali: z.number().int().optional().nullable(),
 }).partial();
 
 type RouteParams = { params: Promise<{ id: string }> };
